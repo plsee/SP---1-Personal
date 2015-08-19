@@ -83,6 +83,8 @@ void cls( HANDLE hConsole )
 
     bSuccess = SetConsoleCursorPosition( hConsole, coordScreen );
     PERR( bSuccess, "SetConsoleCursorPosition" );
+
+
     return;
 }
 	
