@@ -1,5 +1,0 @@
-﻿1>------ Build started: Project: SP1Framework, Configuration: Debug Win32 ------
-1>  main.cpp
-1>console.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
-1>  SP1Framework.vcxproj -> C:\Users\m308\Desktop\SP-1\SP1Framework\Debug\SP1Framework.exe
-========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
