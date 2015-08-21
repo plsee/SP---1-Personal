@@ -16,12 +16,13 @@ void mainLoop();
 
 int main()
 {
-    randomSeed();
-    mapChange(); // Seeding
-	init();      // initialize your variables
+	
+    randomSeed();// Seeding
+    //mapChange();
+	init();// initialize your variables
+	splashwait();
     mainLoop();  // main loop
     shutdown();  // do clean up, if any. free memory.
-	
 	return 0;
 }
 
@@ -31,7 +32,7 @@ void mainLoop()
 {
     g_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
     while (!g_quitGame)      // run this loop until user wants to quit 
-	{        
+	{
         getInput();                         // get keyboard input
         update(g_timer.getElapsedTime());   // update the game
         render();                           // render the graphics output to screen
