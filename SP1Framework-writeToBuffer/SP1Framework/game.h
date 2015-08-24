@@ -20,10 +20,12 @@ enum Keys
 	K_D,
     K_E,
 	K_R,
+    K_RETURN,
 	K_COUNT
 };
 enum GAMESTATES{
 	SPLASH,
+	TITLE,
 	GAME,
 	GAMEOVER
 };
@@ -36,6 +38,12 @@ enum MONSTERSTATE{
     TUTORIAL,
     STARTGAME,
     ENDGAME
+};
+
+enum CLASSES {
+    BALANCED,
+    ARCHER,
+    WARRIOR
 };
 
 void splashwait();
@@ -74,15 +82,18 @@ void startrender();
 void gameend();
 void trapLava();
 void Dead();
-void map1();
-void map2();
-void map3();
+void mapLibrary();
+void mapLectureHall();
+void mapRiver();
 void tutorial();
-<<<<<<< 742fded0d92a41c26ba4a23c6091bc15d1b2cd90
 void status();
-=======
 void setmonsterlocation();
-
->>>>>>> 32c6993c34e1a58f53663c17669c92dc7265fbda
+void textbox();
+void titlescreen();
+void bomb();
+void pointer();
+void balanced();
+void archer();
+void warrior();
 
 #endif // _GAME_H
