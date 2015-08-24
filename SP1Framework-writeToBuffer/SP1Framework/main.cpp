@@ -16,7 +16,7 @@ void mainLoop();
 
 int main()
 {
-	
+    status();
     randomSeed();// Seeding
     //mapChange();
 	init();// initialize your variables

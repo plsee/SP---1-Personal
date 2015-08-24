@@ -32,6 +32,11 @@ enum DEATHSTATE{
 	RESTART,
 	QUIT
 };
+enum MONSTERSTATE{
+    TUTORIAL,
+    STARTGAME,
+    ENDGAME
+};
 
 void splashwait();
 void splash();
@@ -49,8 +54,6 @@ void renderCharacter();     // renders the character into the buffer
 void renderFramerate();     // renders debug information, frame rate, elapsed time, etc
 void renderToScreen();      // dump the contents of the buffer to the screen, one frame worth of game
 void collision();
-#define MAP_WIDTH 53
-#define MAP_HEIGHT 27
 void randomSeed();
 void minimap();
 void mapper();
@@ -71,7 +74,15 @@ void startrender();
 void gameend();
 void trapLava();
 void Dead();
+void map1();
+void map2();
+void map3();
+void tutorial();
+<<<<<<< 742fded0d92a41c26ba4a23c6091bc15d1b2cd90
+void status();
+=======
+void setmonsterlocation();
 
-
+>>>>>>> 32c6993c34e1a58f53663c17669c92dc7265fbda
 
 #endif // _GAME_H
