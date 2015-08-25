@@ -27,6 +27,7 @@ enum GAMESTATES{
 	SPLASH,
 	TITLE,
 	GAME,
+	PAUSE,
 	GAMEOVER
 };
 enum DEATHSTATE{
@@ -91,9 +92,12 @@ void setmonsterlocation();
 void textbox();
 void titlescreen();
 void bomb();
-void pointer();
+void Tpointer();
 void balanced();
 void archer();
 void warrior();
-
+void pause();
+void Ppointer();
+void pausemenu();
+void BossAttack();
 #endif // _GAME_H
