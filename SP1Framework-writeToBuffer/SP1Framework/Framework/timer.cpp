@@ -26,7 +26,7 @@ double StopWatch::LIToSecs( LARGE_INTEGER & L) {
      return ((double)L.QuadPart /(double)frequency.QuadPart) ;
  }
  
-void StopWatch::startTimer( )
+void StopWatch::startTimer()
 {
     QueryPerformanceCounter(&prevTime) ;
 }

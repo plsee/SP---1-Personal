@@ -26,6 +26,7 @@ enum Keys
 enum GAMESTATES{
 	SPLASH,
 	TITLE,
+    CLASSSELECT,
 	GAME,
 	PAUSE,
 	GAMEOVER
@@ -43,8 +44,13 @@ enum MONSTERSTATE{
 
 enum CLASSES {
     BALANCED,
-    ARCHER,
-    WARRIOR
+    WARRIOR,
+    ARCHER
+    
+};
+enum BOSS{
+	NORMAL,
+	BATTLE
 };
 
 void splashwait();
@@ -100,4 +106,14 @@ void pause();
 void Ppointer();
 void pausemenu();
 void BossAttack();
+void Getdamagedbyboss();
+void BossFight();
+void classSelect();
+void pointerCS();
+void invincibility();
+void monsterDamage();
+void CSdesc();
+void mapMerryGR();
+void mapTheH();
+
 #endif // _GAME_H
