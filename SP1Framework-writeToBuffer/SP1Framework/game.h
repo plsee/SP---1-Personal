@@ -20,8 +20,18 @@ enum Keys
 	K_D,
     K_E,
 	K_R,
+    K_Q,
     K_RETURN,
 	K_COUNT
+};
+enum MAPSTATE{
+    TUTORIALROOM,
+    RIVERROOM,
+    LIBRARYROOM,
+    LECTUREHALLROOM,
+    MERRYGRROOM,
+    THEHROOM,
+    BOSSROOM
 };
 enum GAMESTATES{
 	SPLASH,
@@ -68,17 +78,16 @@ void renderMap();           // renders the map to the buffer first
 void renderCharacter();     // renders the character into the buffer
 void renderFramerate();     // renders debug information, frame rate, elapsed time, etc
 void renderToScreen();      // dump the contents of the buffer to the screen, one frame worth of game
-void collision();
-void randomSeed();
-void minimap();
-void mapper();
-void HUD();
-void switchPath();
-void moveMonster();
-void moveMonster1();
-void projectile();
-void monsterDeath();
-void monster1Death();
+void collision();           // detect collision for damage calculation
+void randomSeed();          //
+void minimap();             // shows minimap
+void HUD();                 // shows stats of player and boss
+void switchPath();          //
+void moveMonster();         //
+void moveMonster1();        //
+void projectile();          // 
+void monsterDeath();        // 
+void monster1Death();       // 
 void collision1();
 void projKill1();
 void projKill();
@@ -115,5 +124,7 @@ void monsterDamage();
 void CSdesc();
 void mapMerryGR();
 void mapTheH();
+void Ultimate();
+void retry();
 
 #endif // _GAME_H
