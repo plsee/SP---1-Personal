@@ -77,10 +77,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ability.cpp" />
+    <ClCompile Include="BossFight.cpp" />
+    <ClCompile Include="classSelect.cpp" />
     <ClCompile Include="Framework\console.cpp" />
     <ClCompile Include="Framework\timer.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="HUD.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mapfunctions.cpp" />
+    <ClCompile Include="Mapdefination.cpp" />
+    <ClCompile Include="minimap.cpp" />
+    <ClCompile Include="projectile.cpp" />
+    <ClCompile Include="traps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework\console.h" />
