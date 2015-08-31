@@ -11,8 +11,10 @@ extern char BossMap[MAP_HEIGHT][MAP_WIDTH];
 extern char printMap[MAP_HEIGHT][MAP_WIDTH];
 extern BOSS fight;
 extern int iToken; 
-extern COORD   Bprojectile1;
-extern COORD   Bprojectile2;
+extern int monsterToken;
+extern int monster1Token;
+extern COORD    Bprojectile1;
+extern COORD    Bprojectile2;
 extern COORD	Bprojectile3;
 extern COORD	Bprojectile4;
 extern COORD	Bprojectile5;
@@ -80,7 +82,7 @@ void init()
     //Pointer location
 	// Pointer for Title screen
     TpointerLoc.X = 32;
-    TpointerLoc.Y = 15;
+    TpointerLoc.Y = 18;
 	// Pointer for Pause screen
     PpointerLoc.X = 32;
     PpointerLoc.Y = 15;
@@ -202,12 +204,7 @@ void update(double dt)
 		case SPLASH : splashwait();
 	}
 }
-// waiting time before Splash Screen switches
-void splashwait(){
-	if (elapsedTime > 3.0){
-		g_eGameState = TITLE;
-	}
-}
+
 void gameplay(){
     processUserInput();// checks if you should change states or do something else with the game, e.g. pause, exit
     // Cobwebbed
@@ -215,17 +212,27 @@ void gameplay(){
         moveCharacter();// moves the character, collision detection, physics, etc
     }
     invincibility();
-	moveMonster();//moves the monsters
-    moveMonster1();
+    if (monsterToken == 1) {
+        moveMonster();//moves the monsters
+    }
+    if (monster1Token == 1){
+        moveMonster1();
+    }
     if (Monster == STARTGAME){
         monsterDamage();
     }// check monster dmg
     trapLava();// check traps
+    spawnMonster();//check if enemy will spawn
+    spawnMonster1();
     // sound can be played here too.
     // When the player dies and the gamestate switches to the game over screen
 	if (player.health <= 0){
 		g_eGameState = GAMEOVER;
 	}
+    // When the boss dies and the gamestate switches to the victory screen
+    if (Bhealth <= 0){
+        g_eGameState = VICTORY;
+    }
 }
 
 /*
@@ -240,9 +247,11 @@ void render()
 	switch (g_eGameState) {
 	case SPLASH: splash(); // splash screen
 		break;
-	case TITLE: titlescreen(); //title screen
+	case TITLE: titlescreen(); // title screen
 		break;
-    case PAUSE: pausemenu();  //pause screen
+    case VICTORY: victory(); // victory screen
+        break;
+    case PAUSE: pausemenu();  // pause screen
         break;
     case CLASSSELECT: classSelect();  // class selection screen
         break;
@@ -272,6 +281,7 @@ void renderGame() {
         }
 	}
 }
+
 //Renders the map according to data
 void renderMap()
 {
@@ -320,11 +330,11 @@ void renderMap()
             }
             //7 ammo
             else if (printMap[i][j] == 7){
-                console.writeToBuffer(c, (char)240);
+                console.writeToBuffer(c, (char)240, 0x0B);
             }
             //8 is health
             else if (printMap[i][j] == 8){
-                console.writeToBuffer(c, (char)244);
+                console.writeToBuffer(c, (char)3, 0x0C);
             }
             //9 spawn points
             else if (printMap[i][j] == 9){
@@ -332,57 +342,68 @@ void renderMap()
             }
             // From A - K maps
             else if (printMap[i][j] == 'A'){
-                console.writeToBuffer(c, (char)456);
+                console.writeToBuffer(c, (char)239, 0x04);
             }
             else if (printMap[i][j] == 'B'){
-                console.writeToBuffer(c, (char)456);
+                console.writeToBuffer(c, (char)239, 0x04);
             }
             else if (printMap[i][j] == 'C'){
-                console.writeToBuffer(c, (char)456);
+                console.writeToBuffer(c, (char)239, 0x04);
             }
             else if (printMap[i][j] == 'D'){
-                console.writeToBuffer(c, (char)456);
+                console.writeToBuffer(c, (char)239, 0x04);
             }
             else if (printMap[i][j] == 'E'){
-                console.writeToBuffer(c, (char)456);
+                console.writeToBuffer(c, (char)239, 0x04);
             }
             else if (printMap[i][j] == 'K'){
-                console.writeToBuffer(c, (char)456);
+                console.writeToBuffer(c, (char)239, 0x04);
             }
-            // From Z - P tutorial
-			else if (printMap[i][j] == 'Z') {
-
-			}
+            // From Y - P tutorial
+            // Monster spawner
 			else if (printMap[i][j] == 'Y') {
 				console.writeToBuffer(c, (char)241);
 			}
+            // Health pack
 			else if (printMap[i][j] == 'X') {
-				console.writeToBuffer(c, (char)244);
+				console.writeToBuffer(c, (char)3, 0x0C);
 			}
+            // Ammo pack
 			else if (printMap[i][j] == 'W') {
-				console.writeToBuffer(c, (char)240);
+                console.writeToBuffer(c, (char)240, 0x0B);
 			}
+            // Bomb
 			else if (printMap[i][j] == 'V') {
-				console.writeToBuffer(c, (char)235, 0x0B);
+                console.writeToBuffer(c, (char)235, 0x0B);
 			}
+            // Super ghost
 			else if (printMap[i][j] == 'U') {
-				console.writeToBuffer(c, (char)237, 0x0B);
+				console.writeToBuffer(c, (char)69, 0x0D);
 			}
+            // Ghost
 			else if (printMap[i][j] == 'T') {
-				console.writeToBuffer(c, (char)236, 0x0B);
+				console.writeToBuffer(c, (char)69, 0x0E);
 			}
+            // Cobweb
 			else if (printMap[i][j] == 'S') {
 				console.writeToBuffer(c, 'X');
 			}
+            // Lava
 			else if (printMap[i][j] == 'R') {
 				console.writeToBuffer(c, (char)247, 0x0C);
 			}
+            // Wall
 			else if (printMap[i][j] == 'Q') {
 				console.writeToBuffer(c, '|', 0x03);
 			}
+            // Path
 			else if (printMap[i][j] == 'P') {
 				console.writeToBuffer(c, ' ' , 0x03);
 			}
+            // Boss
+            else if (printMap[i][j] == 'I') {
+                console.writeToBuffer(c, (char)154, 0x0C);
+            }
 
             else{
                 console.writeToBuffer(c, " ");
@@ -395,7 +416,6 @@ void renderMap()
 	HUD();
 	
 }
-
 void moveCharacter()
 {
         //PLAYER MOVEMENT
@@ -507,13 +527,31 @@ void clearScreen()
 void renderCharacter()
 {
     // Draw the location of the character
-    console.writeToBuffer(charLocation, (char)232, 0x0A);
-    if (g_cChaserLoc.X == g_cChaser1Loc.X && g_cChaserLoc.Y == g_cChaser1Loc.Y){
-        console.writeToBuffer(g_cChaserLoc, (char)238, 0x0D);
+    if (cobwebToken != 1){
+        console.writeToBuffer(charLocation, (char)232, 0x0A);
     }
     else{
-        console.writeToBuffer(g_cChaserLoc, (char)238, 0x0E);
-        console.writeToBuffer(g_cChaser1Loc, (char)238, 0x0E);
+        console.writeToBuffer(charLocation, (char)232);
+    }
+    // render super monster
+    if (g_cChaserLoc.X == g_cChaser1Loc.X && g_cChaserLoc.Y == g_cChaser1Loc.Y){
+        if (monsterToken == 1){
+            console.writeToBuffer(g_cChaserLoc, (char)238, 0x0D);
+        }
+    }
+    // normal monster
+    else{
+        if (monsterToken == 1) {
+            if (level != TUTORIALROOM){
+                console.writeToBuffer(g_cChaserLoc, (char)238, 0x0E);
+            }
+        }
+        if (monster1Token == 1){
+            if (level != TUTORIALROOM){
+                console.writeToBuffer(g_cChaser1Loc, (char)238, 0x0E);
+            }
+        }
+        
     }
 }
 void renderFramerate()
@@ -544,157 +582,6 @@ void renderToScreen()
 void randomSeed(){
     int seed = 6;
     srand(seed);
-}
-//move the 1st monster
-void moveMonster(){
-    // CHASER MOVEMENT
-    if (Monster == STARTGAME){
-        monsterdelay++; //change gamestate so that the monster can move, and with a delay
-        if (monsterdelay == 5){
-            if (charLocation.Y < g_cChaserLoc.Y){
-                g_cChaserLoc.Y -= 1;
-                Beep(1440, 30);
-            } // up
-            if (charLocation.X < g_cChaserLoc.X){
-                g_cChaserLoc.X -= 1;
-                Beep(1440, 30);
-            } // left
-            if (charLocation.X > g_cChaserLoc.X){
-                g_cChaserLoc.X += 1;
-                Beep(1440, 30);
-            } // right
-            if (charLocation.Y > g_cChaserLoc.Y){
-                g_cChaserLoc.Y += 1;
-                Beep(1440, 30);
-            } // down
-            monsterdelay = 0; // resets delay after making a move
-        }
-    }
-}
-//move the 2nd monster
-void moveMonster1(){
-	// CHASER MOVEMENT
-    if (Monster == STARTGAME){
-        monster1delay++; //change gamestate so that the monster can move, and with a delay
-        if (monster1delay == 5){
-            if (charLocation.Y < g_cChaser1Loc.Y){
-                g_cChaser1Loc.Y -= 1;
-                Beep(1440, 30);
-            } // up
-            if (charLocation.X < g_cChaser1Loc.X){
-                g_cChaser1Loc.X -= 1;
-                Beep(1440, 30);
-            } // left
-            if (charLocation.X > g_cChaser1Loc.X){
-                g_cChaser1Loc.X += 1;
-                Beep(1440, 30);
-            } // right
-            if (charLocation.Y > g_cChaser1Loc.Y){
-                g_cChaser1Loc.Y += 1;
-                Beep(1440, 30);
-            } // down
-            monster1delay = 0; // resets delay after making a move
-        }
-    }
-}
-// check if 1st monster gets shot
-void projKill(){
-	if (g_cChaserLoc.X == g_cProjectile.X && g_cChaserLoc.Y == g_cProjectile.Y){
-		monsterDeath(); // monster dies after getting hit by projectile
-	}
-}
-// check if second monster gets shot
-void projKill1(){
-	if (g_cChaser1Loc.X == g_cProjectile.X && g_cChaser1Loc.Y == g_cProjectile.Y){
-		monster1Death(); // monster dies after getting hit by projectile
-	}
-}
-//1st monster death
-void monsterDeath(){
-	int spawnLocation = rand() % 3; // Spawns the monster randomly between 3 different spawn locations
-	g_cChaserLoc.X = 26;
-	if (spawnLocation == 0){
-		g_cChaserLoc.Y = 2; // location 1
-	}
-	else if (spawnLocation == 1){
-		g_cChaserLoc.Y = 14; // location 2
-	}
-	else{
-		g_cChaserLoc.Y = 24; // location 3
-	}
-}
-// 2nd monster death
-void monster1Death(){
-	int spawnLocation = rand() % 3; // Spawns the monster randomly between 3 different spawn locations
-	g_cChaser1Loc.X = 26;
-	if (spawnLocation == 0){
-		g_cChaser1Loc.Y = 14; // location 1
-	}
-	else if (spawnLocation == 1){
-		g_cChaser1Loc.Y = 24; // location 2
-	}
-	else{
-		g_cChaser1Loc.Y = 2; // location 3
-	}
-}
-
-//collision check/damage calculation
-//1st monster collision check
-void collision(){
-    if (charLocation.X == g_cChaserLoc.X && charLocation.Y == g_cChaserLoc.Y){
-        monsterDeath(); // Monster dies after damaging player
-        if (iToken == 0){
-            player.health -= 1; // reduces player health by 1
-            iToken += 1;
-            t_invincibility = elapsedTime + 0.5; // allows player to have invicibility for 0.5 sec after being damaged
-        }
-    }
-}
-//2nd monster collision check
-void collision1(){
-     if (charLocation.X == g_cChaser1Loc.X && charLocation.Y  == g_cChaser1Loc.Y){
-		monster1Death(); // Monster dies after damaging player
-        if (iToken == 0){
-            player.health -= 1; // reduces player health by 1
-            iToken += 1;
-            t_invincibility = elapsedTime + 0.5; // allows player to have invicibility for 0.5 sec after being damaged
-        }
-	}
-}
-//Refill Ammo & Health
-void refill(){
-    if (printMap[charLocation.Y][charLocation.X] == 7){
-        printMap[charLocation.Y][charLocation.X] = 0;
-        if (player.ammo + 10 >= 20){
-            player.ammo = 20; // Does not allow player ammo to be above 20 
-        }
-        else if (classes == WARRIOR) {
-            player.ammo = 1; // doesnt change for warrior as he has infinite ammo
-        }
-        else{
-            player.ammo += 5; // Ammo pack refills ammo by 5
-        }
-	}
-    if ((printMap[charLocation.Y][charLocation.X] == 8)){
-        if (player.health < MaxHP){
-            player.health += 1; // Refills player health by 1
-            printMap[charLocation.Y][charLocation.X] = 0;
-        }
-    }
-}
-//Splash Screen
-void splash(){
-	std::string gamesplash;
-	COORD c = console.getConsoleSize();
-	c.Y /= 5;
-	c.X /= 9;
-	std::ifstream myfile;
-	myfile.open("screen/Spooky.txt");
-	for (int i = 0; myfile.good(); i++){
-		std::getline(myfile, gamesplash);
-		console.writeToBuffer(c, gamesplash, 0x0E); // Prints the characters line by line after reading the text file
-		c.Y += 1;
-	}
 }
 
 //Gameover,Retry screen
@@ -753,16 +640,8 @@ void gameend(){
     Bprojectile7.Y = 0;
     Bprojectile8.X = 0;
     Bprojectile8.Y = 0;
-    Bhealth = 50;
 } // Boss projectile for all the 8 different directions 
 
-//Refill Bomb
-void bombrefill(){
-    if (printMap[charLocation.Y][charLocation.X] == 6){
-        printMap[charLocation.Y][charLocation.X] = 0;
-        player.bomb += 1;
-    }
-}
 // Changes the map
 void mapChange(){
     if (printMap[charLocation.Y][charLocation.X] == 'A'){
@@ -805,77 +684,91 @@ void textbox() {
 	COORD c;	
 	//wall
 	if (printMap[charLocation.Y][charLocation.X] == 'Q'){
-			c.X = 10;
+			c.X = 6;
 			c.Y = 7;
 			console.writeToBuffer(c, "This is a Wall");
-			c.X = 10;
+			c.X = 6;
 			c.Y = 8;
 			console.writeToBuffer(c, "You can jump over 1 layer thick walls");
 		}
 	
 	//Lava
     if (printMap[charLocation.Y][charLocation.X] == 'R'){
-		c.X = 10;
+        c.X = 6;
 		c.Y = 7;
 		console.writeToBuffer(c, "This is lava");
-		c.X = 10;
+        c.X = 6;
 		c.Y = 8;
-		console.writeToBuffer(c, "It does 3 damage instantly");
+		console.writeToBuffer(c, "It does 2 damage instantly");
 	}
 	//cobwebs
 	if (printMap[charLocation.Y][charLocation.X] == 'S'){
-		c.X = 10;
+        c.X = 6;
 		c.Y = 7;
 		console.writeToBuffer(c, "This is Cobwebs");
-		c.X = 10;
+        c.X = 6;
 		c.Y = 8;
 		console.writeToBuffer(c, "It makes you stop moving for 1 second");
 	}
-	c.X = 14;
-	c.Y = 7;
+
 	if (printMap[charLocation.Y][charLocation.X] == 'T'){
-		console.writeToBuffer(c, "PlaceHolder");
+        c.X = 6;
+        c.Y = 7;
+		console.writeToBuffer(c, "This is a ghost");
+        c.X = 6;
+        c.Y = 8;
+        console.writeToBuffer(c, "It deals 1 damage to you if it touches you");
 	}
-	c.X = 17;
-	c.Y = 7;
+
 	if (printMap[charLocation.Y][charLocation.X] == 'U'){
-		console.writeToBuffer(c, "Another Placeholder");
+        c.X = 6;
+        c.Y = 7;
+		console.writeToBuffer(c, "This is a super ghost");
+        c.X = 6;
+        c.Y = 8;
+        console.writeToBuffer(c, "It appears when 2 ghost combines");
+        c.X = 6;
+        c.Y = 8;
+        console.writeToBuffer(c, "It deals 2 damage to you if it touches you");
 	}
 	
 	if (printMap[charLocation.Y][charLocation.X] == 'V'){
-		c.X = 20;
+		c.X = 6;
 		c.Y = 7;
 		console.writeToBuffer(c, "This is a bomb");
-		c.X = 2;
+		c.X = 6;
 		c.Y = 8;
-		console.writeToBuffer(c, "It kills all the monster on the map at the moment");
+		console.writeToBuffer(c, "It kills all the ghosts on the map");
 	}
 	// Ammo pack
 	if (printMap[charLocation.Y][charLocation.X] == 'W'){
-		c.X = 10;
+		c.X = 6;
 		c.Y = 7;
 		console.writeToBuffer(c, "This is an ammo pack");
-		c.X = 10;
+		c.X = 6;
 		c.Y = 8;
-		console.writeToBuffer(c, "Refills ammo by 10");
+		console.writeToBuffer(c, "Refills ammo by 5");
 	}
 	// Health pack
 	if (printMap[charLocation.Y][charLocation.X] == 'X'){
-		c.X = 10;
+		c.X = 6;
 		c.Y = 7;
 		console.writeToBuffer(c, "This is a Health Pack");
-		c.X = 10;
+		c.X = 6;
 		c.Y = 8;
 		console.writeToBuffer(c, "Refills health by 1");
 	}
 	//Monster Spawner
-	
 	if (printMap[charLocation.Y][charLocation.X] == 'Y'){
-		c.X = 10;
+		c.X = 6;
 		c.Y = 7;
 		console.writeToBuffer(c, "This is a monster spawner");
-		c.X = 10;
+		c.X = 6;
 		c.Y = 8;
+        console.writeToBuffer(c, "Monster spawns here when killed");
+        c.X = 6;
+        c.Y = 9;
+        console.writeToBuffer(c, "Able to walk through it");
 	}
 	if (printMap[charLocation.Y][charLocation.X] == 'P')
 	{
@@ -883,41 +776,24 @@ void textbox() {
 		c.Y = 7;
 		console.writeToBuffer(c, "Step on each item to know what it is!");
 		c.X = 8;
-		c.Y = 18;
+		c.Y = 12;
 		console.writeToBuffer(c, "Arrow Keys to Move");
 		c.X = 8;
-		c.Y = 20;
+		c.Y = 14;
 		console.writeToBuffer(c, "WASD to shoot in respective directions");
 		c.X = 8;
-		c.Y = 22;
+		c.Y = 16;
 		console.writeToBuffer(c, "Press & hold Space + Arrow key to jump");
+        c.X = 8;
+        c.Y = 18;
+        console.writeToBuffer(c, "'Q' to use class ultimate");
+        c.X = 8;
+        c.Y = 20;
+        console.writeToBuffer(c, "'E' to use bomb");
+        c.X = 8;
+        c.Y = 22;
+        console.writeToBuffer(c, "'Esc' to pause game");
 	} // Basic instructions shown at start of game, hard coded into array
-}
-
-// title screen
-void titlescreen(){
-	clearScreen();
-	std::string title;
-	COORD c;
-	c.Y = 3;
-	c.X = 10;
-	std::ifstream myfile;
-	myfile.open("screen/title.txt");
-	for (int i = 0; myfile.good(); i++){
-		std::getline(myfile, title);
-		console.writeToBuffer(c, title, 0x0E);
-		c.Y += 1;
-	} // prints out the characters line by line
-
-	// start button
-	c.Y = 15;
-	c.X = 34;
-	console.writeToBuffer(c, "Start");
-	// exit button
-	c.Y = 19;
-	c.X = 34;
-	console.writeToBuffer(c, "Exit");
-    Tpointer();
 }
 
 //BOMB
@@ -933,119 +809,10 @@ void bomb() {
 		}
     }
 }
-//TITLE POINTER
-void Tpointer(){
-    if (keyPressed[K_UP]){
-        TpointerLoc.Y = 15;
-    } // Move pointer upwards
-    else if (keyPressed[K_DOWN]){
-        TpointerLoc.Y = 19;
-    } // Move pointer downwards
-    console.writeToBuffer(TpointerLoc, ">");
-    if (keyPressed[K_RETURN]){
-        if (TpointerLoc.Y == 15){
-            g_eGameState = CLASSSELECT;
-        }
-        else if (TpointerLoc.Y == 19){
-            g_quitGame = true;
-        } //confirm selection
-    }
-}
-// pause screen
-void Ppointer(){
-    //Up button pressed
-    if (keyPressed[K_UP]){
-        if (PpointerLoc.Y == 15){
-            PpointerLoc.Y = 17;
-        } // changes the pointer location by changing the coordinates
-        else if (PpointerLoc.Y == 17){
-            PpointerLoc.Y = 19;
-        } 
-        else{
-            PpointerLoc.Y = 15;
-        }
-    }
-    //Down button pressed
-    else if (keyPressed[K_DOWN]){
-        if (PpointerLoc.Y == 19){
-            PpointerLoc.Y = 17;
-        } // changes the pointer location by changing the coordinates
-        else if (PpointerLoc.Y == 17){
-            PpointerLoc.Y = 15;
-        }
-        else{
-            PpointerLoc.Y = 19;
-        }
-        
-    }
-
-    console.writeToBuffer(PpointerLoc, ">");
-    //Confirming option
-    if(keyPressed[K_RETURN]){
-        if (PpointerLoc.Y == 15){
-            g_eGameState = GAME;
-        } // move to the game screen
-        else if (PpointerLoc.Y == 17){
-            tutorial();
-            g_eGameState = GAMEOVER;
-        } // move to game over screen
-        else if (PpointerLoc.Y == 19){
-            tutorial();
-            g_eGameState = SPLASH;
-            elapsedTime = 2;
-        } // move to splash screen
-    }
-}
-//Pause menu
-void pausemenu(){
-		clearScreen();
-		std::string pause;
-		COORD c;
-		c.Y = 3;
-		c.X = 10;
-		std::ifstream myfile;
-		myfile.open("screen/pause.txt"); // prints the characters from text files to screen
-		for (int i = 0; myfile.good(); i++){
-			std::getline(myfile, pause);
-			console.writeToBuffer(c, pause, 0x0E);
-			c.Y += 1;
-		} // print line by line 
-
-		//continue button
-		c.Y = 15;
-		c.X = 33;
-		console.writeToBuffer(c, "Continue");
-		// Restart button
-		c.Y = 17;
-		c.X = 33;
-		console.writeToBuffer(c, "Restart");
-		// Exit to main Menu button
-		c.Y = 19;
-		c.X = 33;
-		console.writeToBuffer(c, "Exit to Main Menu");
-        Ppointer();
-}
 
 void invincibility(){
     if (elapsedTime > t_invincibility){
         iToken = 0;
-    }
-}
-
-// checking monster dmg
-void monsterDamage(){
-    if(charLocation.X == g_cChaser1Loc.X && charLocation.Y == g_cChaser1Loc.Y && charLocation.X == g_cChaserLoc.X && charLocation.Y == g_cChaserLoc.Y){
-        monsterDeath();
-        monster1Death();
-        if (iToken == 0){
-            player.health -= 2;
-            iToken += 1;
-            t_invincibility = elapsedTime + 0.5;
-        }
-    }
-    else{
-        collision();
-        collision1();
     }
 }
 

@@ -38,6 +38,7 @@ enum GAMESTATES{
 	TITLE,
     CLASSSELECT,
 	GAME,
+    VICTORY,
 	PAUSE,
 	GAMEOVER
 };
@@ -126,5 +127,8 @@ void mapMerryGR();
 void mapTheH();
 void Ultimate();
 void retry();
+void spawnMonster();
+void spawnMonster1();
+void victory();
 
 #endif // _GAME_H

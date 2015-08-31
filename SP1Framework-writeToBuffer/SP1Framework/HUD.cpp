@@ -6,6 +6,7 @@ extern double elapsedTime;
 extern double uCooldown;
 extern Console console;
 extern MAPSTATE level;
+extern CLASSES classes;
 
 struct Stats {
     short health;
@@ -61,6 +62,9 @@ void HUD() {
         c.X = console.getConsoleSize().X - 21 + m;
         c.Y = console.getConsoleSize().Y - 12;
         console.writeToBuffer(c, (char)248);
+        if (classes == WARRIOR) {
+            console.writeToBuffer(c, (char)236);
+        }
     }
     //Bomb
     c.X = console.getConsoleSize().X - 21;

@@ -37,7 +37,7 @@ void projectile() {
                 player.ammo = 1;				// Does not reduce ammo for warrior as he as infinite ammo
                 for (int i = 0; i < 1; ++i) {
                     if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             if (elapsedTime < t_tDamage) {
                                 Bhealth -= 3;
                             }
@@ -60,7 +60,7 @@ void projectile() {
             else if (classes == ARCHER) {
                 if (elapsedTime < t_maxRange) {
                     for (int i = 0; i < 22; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                         if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
@@ -76,7 +76,7 @@ void projectile() {
                 }
                 else {
                     for (int i = 0; i < 4; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                         if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
@@ -94,7 +94,7 @@ void projectile() {
             else {
                 for (int i = 0; i < 2; ++i) {
                     if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                     }
@@ -116,7 +116,7 @@ void projectile() {
             g_cProjectile.Y = charLocation.Y;
             if (classes == WARRIOR) {
                 if (fight == BATTLE){
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                    if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                         if (elapsedTime < t_tDamage) {
                             Bhealth -= 3;
                         }
@@ -141,7 +141,7 @@ void projectile() {
             else if (classes == ARCHER) {
                 if (elapsedTime < t_maxRange) {
                     for (int i = 0; i < 75; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                         if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
@@ -157,7 +157,7 @@ void projectile() {
                 }
                 else {
                     for (int i = 0; i < 4; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                         if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
@@ -175,7 +175,7 @@ void projectile() {
             else {
                 for (int i = 0; i < 2; ++i) {
                     if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                     }
@@ -199,7 +199,7 @@ void projectile() {
                 player.ammo += 1;
                 for (int i = 0; i < 1; ++i) {
                     if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             if (elapsedTime < t_tDamage) {
                                 Bhealth -= 3;
                             }
@@ -222,7 +222,7 @@ void projectile() {
             else if (classes == ARCHER) {
                 if (elapsedTime < t_maxRange) {
                     for (int i = 0; i < 22; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                         if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
@@ -238,7 +238,7 @@ void projectile() {
                 }
                 else {
                     for (int i = 0; i < 4; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                         if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
@@ -256,7 +256,7 @@ void projectile() {
             else {
                 for (int i = 0; i < 2; ++i) {
                     if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                     }
@@ -280,7 +280,7 @@ void projectile() {
                 player.ammo += 1;
                 for (int i = 0; i < 1; ++i) {
                     if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             if (elapsedTime < t_tDamage) {
                                 Bhealth -= 3;
                             }
@@ -303,7 +303,7 @@ void projectile() {
             else if (classes == ARCHER) {
                 if (elapsedTime < t_maxRange) {
                     for (int i = 0; i < 71; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                         if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
@@ -319,7 +319,7 @@ void projectile() {
                 }
                 else {
                     for (int i = 0; i < 4; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                         if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
@@ -337,7 +337,7 @@ void projectile() {
             else {
                 for (int i = 0; i < 2; ++i) {
                     if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 9){
+                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
                             Bhealth -= 1;
                         }
                     }
