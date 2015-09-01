@@ -16,6 +16,7 @@
     <ClCompile Include="Refills.cpp" />
     <ClCompile Include="Screens.cpp" />
     <ClCompile Include="traps.cpp" />
+    <ClCompile Include="MovingTraps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework\console.h">

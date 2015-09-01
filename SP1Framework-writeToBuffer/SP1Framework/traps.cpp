@@ -5,6 +5,7 @@ extern char printMap[MAP_HEIGHT][MAP_WIDTH];
 
 extern int iToken;
 extern int cobwebToken;
+extern int healthDMG;
 extern double elapsedTime;
 extern double t_invincibility;
 extern double cobweb;
@@ -32,6 +33,7 @@ void trapLava(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5;
         }
+        healthDMG += 2;
     }
     //COBWEBBED
     if (printMap[charLocation.Y][charLocation.X] == 3){

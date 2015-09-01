@@ -7,6 +7,7 @@ int spawn1Token = 0;
 extern int monsterdelay;
 extern int monster1delay;
 extern int iToken;
+extern int healthDMG;
 double t_monsterDied;
 double t_monster1Died;
 extern double elapsedTime;
@@ -114,7 +115,7 @@ void projKill1(){
 
 void monsterDeath(){
     monsterToken = 0;
-    t_monsterDied = elapsedTime + 3;
+    t_monsterDied = elapsedTime + 15;
     spawnToken = 1;
     int spawnLocation = rand() % 3; // Spawns the monster randomly between 3 different spawn locations
     g_cChaserLoc.X = 26;
@@ -135,7 +136,7 @@ void monsterDeath(){
 
 void monster1Death(){
     monster1Token = 0;
-    t_monster1Died = elapsedTime + 3;
+    t_monster1Died = elapsedTime + 15;
     spawn1Token = 1;
     int spawnLocation = rand() % 3; // Spawns the monster randomly between 3 different spawn locations
     g_cChaser1Loc.X = 26;
@@ -162,6 +163,7 @@ void collision(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5; // allows player to have invicibility for 0.5 sec after being damaged
         }
+        healthDMG++;
     }
 }
 
@@ -177,6 +179,7 @@ void collision1(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5; // allows player to have invicibility for 0.5 sec after being damaged
         }
+        healthDMG++;
     }
 
 }
@@ -196,6 +199,7 @@ void monsterDamage(){
         }
         monsterDeath();
         monster1Death();
+        healthDMG += 2;
     }
     else{
         if (monsterToken == 1){

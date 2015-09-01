@@ -28,14 +28,19 @@ int BAdelay7 = 0; //for down
 int RandAtk7 = rand() % 4 + 1;
 int BAdelay8 = 0; //for left
 int RandAtk8 = rand() % 4 + 1;
-extern Console console;
+
+extern int healthDMG;
 extern char printMap[MAP_HEIGHT][MAP_WIDTH];
-extern COORD charLocation;
+extern char BossMap[MAP_HEIGHT][MAP_WIDTH];
 extern double elapsedTime;
 extern double bossFightTime;
 extern double t_invincibility;
-extern char BossMap[MAP_HEIGHT][MAP_WIDTH];
+
+
+extern Console console;
+extern COORD charLocation;
 extern MAPSTATE level;
+
 struct Stats {
     short health;
     short ammo;
@@ -171,6 +176,7 @@ void Getdamagedbyboss(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5;
         }
+        healthDMG++;
     }
     else if (charLocation.X == Bprojectile2.X && charLocation.Y == Bprojectile2.Y){
         if (iToken == 0){
@@ -178,6 +184,7 @@ void Getdamagedbyboss(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5;
         }
+        healthDMG++;
     }
     else if (charLocation.X == Bprojectile3.X && charLocation.Y == Bprojectile3.Y){
         if (iToken == 0){
@@ -185,6 +192,7 @@ void Getdamagedbyboss(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5;
         }
+        healthDMG++;
     }
     else if (charLocation.X == Bprojectile4.X && charLocation.Y == Bprojectile4.Y){
         if (iToken == 0){
@@ -192,6 +200,7 @@ void Getdamagedbyboss(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5;
         }
+        healthDMG++;
     }
     else if (charLocation.X == Bprojectile5.X && charLocation.Y == Bprojectile5.Y){
         if (iToken == 0){
@@ -199,6 +208,7 @@ void Getdamagedbyboss(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5;
         }
+        healthDMG++;
     }
     else if (charLocation.X == Bprojectile6.X && charLocation.Y == Bprojectile6.Y){
         if (iToken == 0){
@@ -206,6 +216,7 @@ void Getdamagedbyboss(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5;
         }
+        healthDMG++;
     }
     else if (charLocation.X == Bprojectile7.X && charLocation.Y == Bprojectile7.Y){
         if (iToken == 0){
@@ -213,6 +224,7 @@ void Getdamagedbyboss(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5;
         }
+        healthDMG++;
     }
     else if (charLocation.X == Bprojectile8.X && charLocation.Y == Bprojectile8.Y){
         if (iToken == 0){
@@ -220,6 +232,7 @@ void Getdamagedbyboss(){
             iToken += 1;
             t_invincibility = elapsedTime + 0.5;
         }
+        healthDMG++;
     }
 
 }

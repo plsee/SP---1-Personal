@@ -32,12 +32,12 @@ COORD c;
     if (level == TUTORIALROOM) {
         c.X = 55;
         c.Y = 4;
-        console.writeToBuffer(c, (char)234, 0x0A);
+        console.writeToBuffer(c, (char)1, 0x0A);
     }
     else {
         c.X = 55;
         c.Y = 4;
-        console.writeToBuffer(c, (char)234);
+        console.writeToBuffer(c, (char)1);
     }
 
     //connect Tutorial - A
@@ -192,11 +192,11 @@ COORD c;
     if (level == BOSSROOM) {
         c.X = 70;
         c.Y = 4;
-        console.writeToBuffer(c, (char)234, 0x0A);
+        console.writeToBuffer(c, (char)154, 0x0A);
     }
     else {
         c.X = 70;
         c.Y = 4;
-        console.writeToBuffer(c, (char)234);
+        console.writeToBuffer(c, (char)154);
     }
 }

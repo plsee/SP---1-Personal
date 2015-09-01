@@ -1,11 +1,11 @@
 // This is the main file for the game logic and function
-#include "game.h"
-#include "Map.h"
-#include "Framework\console.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include "game.h"
+#include "Map.h"
+#include "Framework\console.h"
 
 extern char BossMap[MAP_HEIGHT][MAP_WIDTH];
 extern char printMap[MAP_HEIGHT][MAP_WIDTH];
@@ -13,6 +13,7 @@ extern BOSS fight;
 extern int iToken; 
 extern int monsterToken;
 extern int monster1Token;
+extern int timesRetry;
 extern COORD    Bprojectile1;
 extern COORD    Bprojectile2;
 extern COORD	Bprojectile3;
@@ -21,6 +22,11 @@ extern COORD	Bprojectile5;
 extern COORD	Bprojectile6;
 extern COORD	Bprojectile7;
 extern COORD	Bprojectile8;
+COORD	guarda;
+COORD	guardb;
+COORD	guardc;
+COORD	guardd;
+COORD	guarde;
 bool keyPressed[K_COUNT];
 int Phealth = 0;
 int cobwebToken = 0;
@@ -38,7 +44,6 @@ double t_tDamage = elapsedTime;
 double t_maxRange = elapsedTime;
 double cobweb = elapsedTime;
 double cobwebInvul = elapsedTime;
-FILE *map;
 GAMESTATES g_eGameState = SPLASH;
 CLASSES classes;
 DEATHSTATE die = SAD;
@@ -99,6 +104,17 @@ void init()
     border2CLoc.Y = 2;
     CSdescLoc.X = 0;
     CSdescLoc.Y = 0;
+    //Guards
+    guarda.X = 4;
+    guarda.Y = 13;
+    guardb.X = 14;
+    guardb.Y = 13;
+    guardc.X = 23;
+    guardc.Y = 13;
+    guardd.X = 31;
+    guardd.Y = 13;
+    guarde.X = 40;
+    guarde.Y = 13;
 	
     // sets the width, height and the font name to use in the console
     console.setConsoleFont(0, 16, L"Consolas");
@@ -163,10 +179,10 @@ void balanced() {
 }
 // Warrior class
 void warrior() {
-    player.health = 6;
+    player.health = 4;
     player.ammo = 1;
     player.bomb = 1;
-    MaxHP = 6;
+    MaxHP = 4;
 }
 // Archer class
 void archer() {
@@ -224,6 +240,7 @@ void gameplay(){
     trapLava();// check traps
     spawnMonster();//check if enemy will spawn
     spawnMonster1();
+    guardMovement();
     // sound can be played here too.
     // When the player dies and the gamestate switches to the game over screen
 	if (player.health <= 0){
@@ -250,6 +267,8 @@ void render()
 	case TITLE: titlescreen(); // title screen
 		break;
     case VICTORY: victory(); // victory screen
+        break;
+    case CREDITS: credits();
         break;
     case PAUSE: pausemenu();  // pause screen
         break;
@@ -285,18 +304,6 @@ void renderGame() {
 //Renders the map according to data
 void renderMap()
 {
-    //Print Map
-    /* 0 = nothing
-    1 = wall
-    2 = trap
-    3 = trap
-    4 = bomb
-    5 = health
-    6 = BOMB
-    7 = ammo
-    8 = door
-    9 = spawn
-    */
     COORD c;
     std::cout << std::endl;
     std::cout << std::endl;
@@ -316,7 +323,7 @@ void renderMap()
             else if (printMap[i][j] == 3){
                 console.writeToBuffer(c, 'X');
             }
-			//
+			//Ammo for warrior
             else if (printMap[i][j] == 4){
                 console.writeToBuffer(c, (char)236, 0x0B);
             }
@@ -342,22 +349,22 @@ void renderMap()
             }
             // From A - K maps
             else if (printMap[i][j] == 'A'){
-                console.writeToBuffer(c, (char)239, 0x04);
+                console.writeToBuffer(c, (char)239, 0x0B);
             }
             else if (printMap[i][j] == 'B'){
-                console.writeToBuffer(c, (char)239, 0x04);
+                console.writeToBuffer(c, (char)239, 0x0B);
             }
             else if (printMap[i][j] == 'C'){
-                console.writeToBuffer(c, (char)239, 0x04);
+                console.writeToBuffer(c, (char)239, 0x0B);
             }
             else if (printMap[i][j] == 'D'){
-                console.writeToBuffer(c, (char)239, 0x04);
+                console.writeToBuffer(c, (char)239, 0x0B);
             }
             else if (printMap[i][j] == 'E'){
-                console.writeToBuffer(c, (char)239, 0x04);
+                console.writeToBuffer(c, (char)239, 0x0B);
             }
             else if (printMap[i][j] == 'K'){
-                console.writeToBuffer(c, (char)239, 0x04);
+                console.writeToBuffer(c, (char)239, 0x0B);
             }
             // From Y - P tutorial
             // Monster spawner
@@ -378,7 +385,7 @@ void renderMap()
 			}
             // Super ghost
 			else if (printMap[i][j] == 'U') {
-				console.writeToBuffer(c, (char)69, 0x0D);
+				console.writeToBuffer(c, (char)69, 0x0A);
 			}
             // Ghost
 			else if (printMap[i][j] == 'T') {
@@ -536,7 +543,7 @@ void renderCharacter()
     // render super monster
     if (g_cChaserLoc.X == g_cChaser1Loc.X && g_cChaserLoc.Y == g_cChaser1Loc.Y){
         if (monsterToken == 1){
-            console.writeToBuffer(g_cChaserLoc, (char)238, 0x0D);
+            console.writeToBuffer(g_cChaserLoc, (char)238, 0x0A);
         }
     }
     // normal monster
@@ -550,8 +557,23 @@ void renderCharacter()
             if (level != TUTORIALROOM){
                 console.writeToBuffer(g_cChaser1Loc, (char)238, 0x0E);
             }
-        }
-        
+        }   
+    }
+    if (level == LIBRARYROOM){
+        console.writeToBuffer(guarda, '*', 0x0E);
+    }
+    else if (level == RIVERROOM){
+        console.writeToBuffer(guardb, '*', 0x0E);
+    }
+    else if (level == THEHROOM){
+        console.writeToBuffer(guardc, '*', 0x0E);
+    }
+    if (level == MERRYGRROOM){
+        console.writeToBuffer(guardd, '*', 0x0E);
+    }
+    if (level == LECTUREHALLROOM)
+    {
+        console.writeToBuffer(guarde, '*', 0x0E);
     }
 }
 void renderFramerate()
@@ -602,6 +624,9 @@ void gameend(){
 	c.X = 28;
 	c.Y = 13;
 	console.writeToBuffer(c, "Press R to retry", 0x0E);
+    //Text for game over
+    c.Y = 15;
+    console.writeToBuffer(c, "Press Q to quit game", 0x0E);
 	if (keyPressed[K_R]) {
 		g_eGameState = GAME;
         player.bomb = 1;
@@ -609,13 +634,17 @@ void gameend(){
         fight = NORMAL;
         retry();
 		cobwebToken = 0;
+        timesRetry++;
 	} // Change gamestate from gameover to game and allows player to retry the stage they are at
+    if (keyPressed[K_Q]) {
+        g_quitGame = true;
+    }
     if (classes == BALANCED) {
         player.health = 4;
         player.ammo = 5;
     } // Adventurer/Balanced class, health 4, 4 ammo at start, 2 range 
     else if (classes == WARRIOR) {
-        player.health = 6;
+        player.health = 4;
         player.ammo = 1;
     } // Warrior class, health 6, infinite ammo, 1 range
     else if (classes == ARCHER) {
@@ -794,20 +823,6 @@ void textbox() {
         c.Y = 22;
         console.writeToBuffer(c, "'Esc' to pause game");
 	} // Basic instructions shown at start of game, hard coded into array
-}
-
-//BOMB
-void bomb() {
-    if (keyPressed[K_E]) {
-		if (player.bomb > 0){
-			monsterDeath();
-			monster1Death();
-			player.bomb -= 1;
-            if (fight == BATTLE) {
-                Bhealth -= 5;
-            } // Kills off enemy and reduces boss health by 5 if fighting boss
-		}
-    }
 }
 
 void invincibility(){

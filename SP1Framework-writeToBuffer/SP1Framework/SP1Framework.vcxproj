@@ -88,6 +88,7 @@
     <ClCompile Include="Mapdefination.cpp" />
     <ClCompile Include="minimap.cpp" />
     <ClCompile Include="MonsterFight.cpp" />
+    <ClCompile Include="MovingTraps.cpp" />
     <ClCompile Include="projectile.cpp" />
     <ClCompile Include="Refills.cpp" />
     <ClCompile Include="Screens.cpp" />

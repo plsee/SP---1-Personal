@@ -11,6 +11,7 @@ extern double elapsedTime;
 extern double t_tDamage;
 extern double t_maxRange;
 extern int Bhealth;
+extern int ammoUsed;
 
 extern COORD g_cProjectile;
 extern COORD charLocation;
@@ -31,6 +32,7 @@ void projectile() {
     if (player.ammo > 0){
         if (keyPressed[K_W]) {					//Shoot upwards when player presses W
             player.ammo -= 1;
+            ammoUsed++;
             g_cProjectile.X = charLocation.X;
             g_cProjectile.Y = charLocation.Y - 1;
             if (classes == WARRIOR) {
@@ -112,6 +114,7 @@ void projectile() {
         }
         else if (keyPressed[K_A]) {				//Shoots left when player presses A
             player.ammo -= 1;
+            ammoUsed++;
             g_cProjectile.X = charLocation.X - 1;
             g_cProjectile.Y = charLocation.Y;
             if (classes == WARRIOR) {
@@ -193,6 +196,7 @@ void projectile() {
         }
         else if (keyPressed[K_S]) {					//Shoots downwards when player presses S
             player.ammo -= 1;
+            ammoUsed++;
             g_cProjectile.X = charLocation.X;
             g_cProjectile.Y = charLocation.Y + 1;
             if (classes == WARRIOR) {
@@ -274,6 +278,7 @@ void projectile() {
         }
         else if (keyPressed[K_D]) {						//Shoots right when player presses D
             player.ammo -= 1;
+            ammoUsed++;
             g_cProjectile.X = charLocation.X + 1;
             g_cProjectile.Y = charLocation.Y;
             if (classes == WARRIOR) {

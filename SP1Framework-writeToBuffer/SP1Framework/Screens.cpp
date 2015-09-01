@@ -1,8 +1,15 @@
-#include "game.h"
-#include "Framework\console.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "game.h"
+#include "Framework\console.h"
+
+int healthDMG = 0;
+int ammoUsed = 0;
+int bombUsed = 0;
+int timesRetry = 0;
+
+int *pStats = 0;
 
 extern int Bhealth;
 extern bool keyPressed[K_COUNT];
@@ -384,24 +391,17 @@ void victory() {
     c.Y = 6;
     c.X = 15;
     std::ifstream myfile;
-    FILE * pFile;
     myfile.open("screen/victory.txt");
     for (int i = 0; myfile.good(); i++){
         std::getline(myfile, victory);
         console.writeToBuffer(c, victory, 0x0E);
         c.Y += 1;
     }
-    c.X = 28;
+    c.X = 14;
     c.Y = 13;
-    console.writeToBuffer(c, "Press R to return to title screen", 0x0E);
+    console.writeToBuffer(c, "Press R to see game run statistics and credits", 0x0E);
     if (keyPressed[K_R]) {
-        g_eGameState = GAME;
-        player.bomb = 1;
-        fight = NORMAL;
-        g_eGameState = SPLASH;
-        level = TUTORIALROOM;
-        tutorial();
-        Bhealth = 50;
+        g_eGameState = CREDITS;
     } // Change gamestate from gameover to game and allows player to retry the stage they are at
     if (classes == BALANCED) {
         player.health = 4;
@@ -415,4 +415,78 @@ void victory() {
         player.health = 2;
         player.ammo = 8;
     } // Archer class, health 2 , 8 ammo at start, 3 range
+}
+
+void credits() {
+    clearScreen();
+    COORD c;
+    std::ostringstream sDamage;
+    std::ostringstream sAmmo;
+    std::ostringstream sBombs;
+    std::ostringstream stimesRetry;
+
+    c.X = 20;
+    c.Y = 5;
+    console.writeToBuffer(c, "STATISTICS", 0x0E);
+
+    c.X = 20;
+    c.Y = 6;
+    pStats = &timesRetry;
+    stimesRetry << "Times Retry : " << *pStats;
+    console.writeToBuffer(c, stimesRetry.str());
+
+    c.X = 20;
+    c.Y = 7;
+    pStats = &healthDMG;
+    sDamage << "Damage Taken : " << *pStats;
+    console.writeToBuffer(c, sDamage.str());
+
+    c.X = 20;
+    c.Y = 8;
+    pStats = &ammoUsed;
+    sAmmo << "Ammo Used : " << *pStats;
+    console.writeToBuffer(c, sAmmo.str());
+
+    c.X = 20;
+    c.Y = 9;
+    pStats = &bombUsed;
+    sBombs << "Bombs Used : " << *pStats;
+    console.writeToBuffer(c, sBombs.str());
+
+    c.X = 20;
+    c.Y = 12;
+    console.writeToBuffer(c, "CREDITS", 0x0E);
+
+    c.X = 20;
+    c.Y = 13;
+    console.writeToBuffer(c, "Lee Kwan Liang");
+
+    c.X = 20;
+    c.Y = 14;
+    console.writeToBuffer(c, "Ashley Wong Keng Han");
+
+    c.X = 20;
+    c.Y = 15;
+    console.writeToBuffer(c, "Quek Cher Yi");
+
+    c.X = 20;
+    c.Y = 16;
+    console.writeToBuffer(c, "Seann Mauri");
+
+    c.X = 20;
+    c.Y = 20;
+    console.writeToBuffer(c, "Press R to return to title screen", 0x0E);
+
+    if (keyPressed[K_R]) {
+        g_eGameState = GAME;
+        player.bomb = 1;
+        fight = NORMAL;
+        g_eGameState = SPLASH;
+        level = TUTORIALROOM;
+        tutorial();
+        Bhealth = 50;
+        healthDMG = 0;
+        ammoUsed = 0;
+        bombUsed = 0;
+    } // Change gamestate from gameover to game and allows player to retry the stage they are at
 }

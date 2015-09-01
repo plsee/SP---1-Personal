@@ -1,5 +1,5 @@
-#include "console.h"
 #include <cstdio>
+#include "console.h"
 
 void gotoXY(int x, int y)
 {
