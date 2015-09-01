@@ -12,6 +12,7 @@ extern COORD charLocation;
 extern double elapsedTime;
 extern double t_invincibility;
 extern int iToken;
+
 struct Stats {
     short health;
     short ammo;
@@ -30,6 +31,12 @@ int gdirectiond = 0;
 int gdirectione = 0;
 
 
+/* respawning of guards
+Done by Sean, 21 Aug 2015
+Checks if Guards are on the same location as player
+if true, player takes 1 damage and becomes invulnerable for 0.5 seconds
+Updated on 26 Aug 2015 - Added invulnerablity for 0.5 seconds
+*/
 void guardadeath(){
     guarda.X = 4;
     guarda.Y = 13;
@@ -54,7 +61,12 @@ void guardedeath(){
     guarde.X = 40;
     guarde.Y = 13;
 }
-
+/* Check if guards get damaged
+Done by Sean, 21 Aug 2015
+Checks if Guards are on the same location as player
+if true, player takes 1 damage and becomes invulnerable for 0.5 seconds
+Updated on 26 Aug 2015 - Added invulnerablity for 0.5 seconds
+*/
 void collisiona(){
     if (charLocation.X == guarda.X && charLocation.Y == guarda.Y){
         guardadeath();
@@ -114,7 +126,12 @@ void collisione(){
         healthDMG++;
     }
 }
-//guard a movement
+/* moving of guards
+Done by Sean, 21 Aug 2015
+Checks if Guards are on the same location as player
+if true, player takes 1 damage and becomes invulnerable for 0.5 seconds
+Updated on 26 Aug 2015 - Added invulnerablity for 0.5 seconds
+*/
 void guardamovement(){
     if (Monster == STARTGAME){
         if (level == LIBRARYROOM)
