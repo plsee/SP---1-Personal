@@ -4,9 +4,15 @@
 extern Console console;
 extern MAPSTATE level;
 
-//---------//
-// minimap //
-//---------//
+/* Minimap
+Done by Kwan Liang, 17 Aug 2015
+
+Changes character icon on minimap depending on where the player currently is
+Checks which room player is at, and which room the player is going to
+
+Updated and completed 27 Aug 2015
+*/
+
 void minimap() {
 COORD c;
 #define MINIMAP_WIDTH 22

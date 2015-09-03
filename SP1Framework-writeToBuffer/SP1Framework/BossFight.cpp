@@ -1,7 +1,9 @@
 #include "game.h"
 #include "Map.h"
 #include "Framework\console.h"
-// Boss projectiles coordinates for all 8 directions
+/*
+Boss projectiles coordinates for all 8 directions
+*/
 COORD   Bprojectile1;
 COORD   Bprojectile2;
 COORD	Bprojectile3;
@@ -10,33 +12,32 @@ COORD	Bprojectile5;
 COORD	Bprojectile6;
 COORD	Bprojectile7;
 COORD	Bprojectile8;
+/* Game State for Boss*/
 BOSS fight = NORMAL;
 int iToken = 0;
 int BAdelay1 = 0; // for btm right
-int RandAtk1 = rand() % 4 + 1; // random atk 
+int RandAtk1; // random atk 
 int BAdelay2 = 0; // for btm left
-int RandAtk2 = rand() % 4 + 1;
+int RandAtk2;
 int BAdelay3 = 0; //for top right
-int RandAtk3 = rand() % 4 + 1;
+int RandAtk3;
 int BAdelay4 = 0; // for top left
-int RandAtk4 = rand() % 4 + 1;
+int RandAtk4;
 int BAdelay5 = 0; // for top
-int RandAtk5 = rand() % 4 + 1;
+int RandAtk5;
 int BAdelay6 = 0; // for right
-int RandAtk6 = rand() % 4 + 1;
+int RandAtk6;
 int BAdelay7 = 0; //for down
-int RandAtk7 = rand() % 4 + 1;
+int RandAtk7;
 int BAdelay8 = 0; //for left
-int RandAtk8 = rand() % 4 + 1;
-
+int RandAtk8;
+int seed;
 extern int healthDMG;
 extern char printMap[MAP_HEIGHT][MAP_WIDTH];
 extern char BossMap[MAP_HEIGHT][MAP_WIDTH];
 extern double elapsedTime;
 extern double bossFightTime;
 extern double t_invincibility;
-
-
 extern Console console;
 extern COORD charLocation;
 extern MAPSTATE level;
@@ -48,8 +49,51 @@ struct Stats {
 };
 extern Stats player;
 
+/*
+Boss attack
+Done by Cher Yi, modified by Ashley, 26 Aug 2015
+Function for boss to attack in each direction
+Arguments - When boss delay == random attack
+Updates
+26 Aug 2015 - Ashley updated the projectile randomness and delay
+*/
+
+//-----------------------//
+// Boss projectile speed //
+//-----------------------//
+
+void bossSpeed(){
+    seed = rand(); // seeding
+    srand(seed);
+    // random atk 
+    //btm right
+    RandAtk1 = rand() % 4 + 1; 
+    //btm left
+    RandAtk2 = rand() % 4 + 1;
+    //top right
+    RandAtk3 = rand() % 4 + 1;
+    //top left
+    RandAtk4 = rand() % 4 + 1;
+    //top
+    RandAtk5 = rand() % 2 + 1;
+    //right
+    RandAtk6 = rand() % 2 + 1;
+    //down
+    RandAtk7 = rand() % 2 + 1;
+    //left
+    RandAtk8 = rand() % 2 + 1;
+    BAdelay1 = 0;
+    BAdelay2 = 0;
+    BAdelay3 = 0;
+    BAdelay4 = 0;
+    BAdelay5 = 0;
+    BAdelay6 = 0;
+    BAdelay7 = 0;
+    BAdelay8 = 0;
+}
+
 //-----------------//
-// Bosses's attack //
+// Boss projectile //
 //-----------------//
 
 void BossAttack(){
@@ -66,7 +110,6 @@ void BossAttack(){
         }
         BAdelay1 = 0;
     }
-
     //btm left
     console.writeToBuffer(Bprojectile2, (char)30, 0x0B);
     if (BAdelay2 == RandAtk2){
@@ -163,11 +206,18 @@ void BossAttack(){
     BAdelay6++;
     BAdelay7++;
     BAdelay8++;
+    Getdamagedbyboss();     // Damage by boss
 }
 
-//------------------------------//
-// Check if Boss damages Player //
-//------------------------------//
+/* Damage Check for boss
+Done by Cher Yi 26 Aug 2015
+Check if character location == projectile location
+if its true,  player health - 1 and gives player invincibility for 0.5seconds
+*/
+
+//-------------------//
+// Boss damage check //
+//-------------------//
 
 void Getdamagedbyboss(){
     if (charLocation.X == Bprojectile1.X && charLocation.Y == Bprojectile1.Y){
@@ -237,9 +287,15 @@ void Getdamagedbyboss(){
 
 }
 
-//---------------------------------------//
-// Set Boss and Boss projectile location //
-//---------------------------------------//
+/* Boss projectile location
+Done by Cher Yi 26 Aug 2015
+if gamestate = BATTLE
+Boss and projectile will spawn
+*/
+
+//------------------------------//
+// Boss & Boss projectile spawn //
+//------------------------------//
 
 void BossFight(){
     for (int i = 0; i < MAP_HEIGHT; i++){
@@ -267,4 +323,5 @@ void BossFight(){
     Bprojectile8.X = 26;
     Bprojectile8.Y = 13;
     level = BOSSROOM;
+
 }

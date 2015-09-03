@@ -1,5 +1,9 @@
 #include "Map.h"
 
+/* Maps for all the different stages
+Done by Seann, 27 Aug 2015
+*/
+
 //-------//
 // MAP A //
 //-------//

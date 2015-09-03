@@ -17,7 +17,6 @@ void mainLoop();
 int main()
 {
     status();
-    randomSeed();// Seeding
 	init();// initialize your variables
 	splashwait();
     mainLoop();  // main loop

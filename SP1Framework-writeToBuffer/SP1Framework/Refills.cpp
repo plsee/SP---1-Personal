@@ -15,19 +15,30 @@ struct Stats {
 
 extern Stats player;
 
-//Refill Health, Ammo & Bomb
+/* Refill
+Done by Cher Yi , 26 Aug 2015
+Checks for player ammo and refills it by 5 if possible when player steps on ammo pack
+Checks player health and increases it by 1 when player steps on health pack
+Checks player bomb and increases it by 1 when players steps on bomb kit
+*/
+
 void refill(){
     if (printMap[charLocation.Y][charLocation.X] == 7){
-        printMap[charLocation.Y][charLocation.X] = 0;
-        if (player.ammo + 10 >= 20){
+        if (player.ammo == 20){
+
+        }
+        else if (player.ammo + 5 > 20){
+            printMap[charLocation.Y][charLocation.X] = 0;
             player.ammo = 20; // Does not allow player ammo to be above 20 
         }
         else if (classes == WARRIOR) {
             player.ammo = 1; // doesnt change for warrior as he has infinite ammo
         }
         else{
+            printMap[charLocation.Y][charLocation.X] = 0;
             player.ammo += 5; // Add 5 to player ammo
         }
+
     }
 
     if ((printMap[charLocation.Y][charLocation.X] == 8)){

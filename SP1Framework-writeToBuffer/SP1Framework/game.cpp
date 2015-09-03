@@ -6,7 +6,6 @@
 #include "game.h"
 #include "Map.h"
 #include "Framework\console.h"
-
 extern char BossMap[MAP_HEIGHT][MAP_WIDTH];
 extern char printMap[MAP_HEIGHT][MAP_WIDTH];
 extern BOSS fight;
@@ -14,6 +13,11 @@ extern int iToken;
 extern int monsterToken;
 extern int monster1Token;
 extern int timesRetry;
+extern int healthDMG;
+extern int ammoUsed;
+extern int bombUsed;
+extern double t_monsterDied;
+extern double t_monster1Died;
 extern COORD    Bprojectile1;
 extern COORD    Bprojectile2;
 extern COORD	Bprojectile3;
@@ -34,13 +38,15 @@ int monsterdelay = 0;
 int monster1delay = 0;
 int Bhealth = 50;
 int showCD = 0;
+int gamesoundToken = 0;
 int MaxHP = 0;
+int bossSoundToken = 0;
 double uCooldown = 0;
 double elapsedTime;
 double deltaTime;
 double bossFightTime = elapsedTime;
 double t_invincibility = elapsedTime;
-double t_tDamage = elapsedTime;
+double t_dDamage = elapsedTime;
 double t_maxRange = elapsedTime;
 double cobweb = elapsedTime;
 double cobwebInvul = elapsedTime;
@@ -105,19 +111,19 @@ void init()
     CSdescLoc.X = 0;
     CSdescLoc.Y = 0;
     //Guards
-    guarda.X = 4;
+    guarda.X = 18;
     guarda.Y = 13;
-    guardb.X = 14;
+    guardb.X = 13;
     guardb.Y = 13;
-    guardc.X = 23;
+    guardc.X = 22;
     guardc.Y = 13;
-    guardd.X = 31;
+    guardd.X = 30;
     guardd.Y = 13;
-    guarde.X = 40;
+    guarde.X = 39;
     guarde.Y = 13;
 	
     // sets the width, height and the font name to use in the console
-    console.setConsoleFont(0, 16, L"Consolas");
+    console.setConsoleFont(0, 24, L"Consolas");
 }
 
 // Do your clean up of memory here
@@ -128,6 +134,7 @@ void shutdown()
 	colour(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
     console.clearBuffer();
 }
+
 /*
 	This function checks if any key had been pressed since the last time we checked
 	If a key is pressed, the value for that particular key will be true
@@ -160,6 +167,10 @@ struct Stats {
     short bomb;
 }player;
 
+//---------//
+// Classes //
+//---------//
+
 void status() {
     switch (classes) {
     case BALANCED: balanced();
@@ -170,10 +181,10 @@ void status() {
         break;
     }
 }
-// Balanced/Adventure class
+// Adventure class
 void balanced() {
     player.health = 4;
-    player.ammo = 5;
+    player.ammo = 5000;
     player.bomb = 1;
     MaxHP = 4;
 }
@@ -217,39 +228,52 @@ void update(double dt)
             break;
 		case GAMEOVER: gameend();
 			break;
-		case SPLASH : splashwait();
+		case SPLASH: splashwait();
 	}
 }
 
 void gameplay(){
-    processUserInput();// checks if you should change states or do something else with the game, e.g. pause, exit
+    processUserInput();     // checks if you should change states or do something else with the game, e.g. pause, exit
     // Cobwebbed
     if (cobwebToken == 0){
-        moveCharacter();// moves the character, collision detection, physics, etc
+        moveCharacter();    // moves the character, collision detection, physics, etc
     }
     invincibility();
-    if (monsterToken == 1) {
-        moveMonster();//moves the monsters
-    }
-    if (monster1Token == 1){
-        moveMonster1();
-    }
+    
     if (Monster == STARTGAME){
-        monsterDamage();
-    }// check monster dmg
-    trapLava();// check traps
-    spawnMonster();//check if enemy will spawn
-    spawnMonster1();
-    guardMovement();
+        monsterDamage();    // check ghost damage
+    }
+
+    traps();                // check traps
+    monsterSpawn();         // check for monster spawn
+    guardMovement(); 
+    monstersMoveChecker();  // Moving trap function
+
     // sound can be played here too.
     // When the player dies and the gamestate switches to the game over screen
 	if (player.health <= 0){
 		g_eGameState = GAMEOVER;
+		PlaySound(L"sounds/dietheme.wav", NULL, SND_ASYNC | SND_LOOP);
 	}
     // When the boss dies and the gamestate switches to the victory screen
     if (Bhealth <= 0){
         g_eGameState = VICTORY;
+        PlaySound(L"sounds/victorytheme.wav", NULL, SND_ASYNC | SND_LOOP);
     }
+    // When player not in boss room
+	if (gamesoundToken == 0){
+		if (level != BOSSROOM){
+			PlaySound(L"sounds/gametheme.wav", NULL, SND_ASYNC | SND_LOOP);
+			gamesoundToken++;
+		}
+	}
+    // When player in boss room
+	if (level == BOSSROOM){
+		if (bossSoundToken == 0){
+			PlaySound(L"sounds/bosstheme.wav", NULL, SND_ASYNC | SND_LOOP);
+			bossSoundToken++;
+		}
+	}
 }
 
 /*
@@ -260,38 +284,41 @@ void gameplay(){
 */
 void render()
 {
-    clearScreen();      // clears the current screen and draw from scratch 
+    clearScreen();                      // clears the current screen and draw from scratch 
 	switch (g_eGameState) {
-	case SPLASH: splash(); // splash screen
+	case SPLASH: splash();              // splash screen
 		break;
-	case TITLE: titlescreen(); // title screen
+	case TITLE: titlescreen();          // title screen
 		break;
-    case VICTORY: victory(); // victory screen
+    case VICTORY: victory();            // victory screen
         break;
-    case CREDITS: credits();
+    case CREDITS: credits();            // credits & statistics screen
         break;
-    case PAUSE: pausemenu();  // pause screen
+    case PAUSE: pausemenu();            // pause screen
         break;
-    case CLASSSELECT: classSelect();  // class selection screen
+    case CLASSSELECT: classSelect();    // class selection screen
         break;
-	case GAME: renderGame();  // Game screen
+	case GAME: renderGame();            // Game screen
 		break;
-	case GAMEOVER: gameend(); // Retry screen
+	case GAMEOVER: gameend();           // Retry screen
 		break;
 	}
 	renderToScreen();// dump the contents of the buffer to the screen, one frame worth of game
 }
 
 void renderGame() {
-	renderMap(); // renders the character into the buffer
-	renderCharacter();  // renders the character into the buffer
-	projectile();     // projectile
-    bomb(); // bomb
-    Ultimate(); // ultimate skills
+	renderMap();                // renders the character into the buffer
+	renderCharacter();          // renders the character into the buffer
+    renderMonster();            // renders Ghost
+    renderGuards();             // renders guards
+	projectile();               // projectile function
+    bomb();                     // bomb function
+    Ultimate();                 // ultimate skills function
 	if (fight == BATTLE){
-		BossAttack();
+        BossAttack();
         if (elapsedTime > bossFightTime){
-            bossFightTime = elapsedTime + 30;
+            bossSpeed();                        // Seeding
+            bossFightTime = elapsedTime + 30;   // map and boss pattern refreshes every 30 seconds
             for (int i = 0; i < MAP_HEIGHT; i++){
                 for (int j = 0; j < MAP_WIDTH; j++){
                     printMap[i][j] = BossMap[i][j];
@@ -311,7 +338,7 @@ void renderMap()
         c.Y = i;
         for (int j = 0; j < MAP_WIDTH; j++){
             c.X = j;
-            //WALLS
+            // Wall
             if (printMap[i][j] == 1){
                 console.writeToBuffer(c, '|', 0x03);
             }
@@ -319,54 +346,64 @@ void renderMap()
             else if (printMap[i][j] == 2){
                 console.writeToBuffer(c, (char)247, 0x0C);
             }
-			// Spikes
+			// Cobweb
             else if (printMap[i][j] == 3){
                 console.writeToBuffer(c, 'X');
             }
-			//Ammo for warrior
+			// Ammo for warrior
             else if (printMap[i][j] == 4){
                 console.writeToBuffer(c, (char)236, 0x0B);
             }
-			//
+			// Door
             else if (printMap[i][j] == 5){
-                console.writeToBuffer(c, (char)237, 0x0B);
+                console.writeToBuffer(c, (char)239, 0x0B);
             }
-            //6 Bomb
+            // Bomb
             else if (printMap[i][j] == 6){
                 console.writeToBuffer(c, (char)235, 0x0B);
             }
-            //7 ammo
+            // Ammo
             else if (printMap[i][j] == 7){
                 console.writeToBuffer(c, (char)240, 0x0B);
             }
-            //8 is health
+            // Health
             else if (printMap[i][j] == 8){
                 console.writeToBuffer(c, (char)3, 0x0C);
             }
-            //9 spawn points
+            // Spawn points
             else if (printMap[i][j] == 9){
                 console.writeToBuffer(c, (char)241);
             }
-            // From A - K maps
+            // From A - E & K, Map doors
+            // Door A
             else if (printMap[i][j] == 'A'){
                 console.writeToBuffer(c, (char)239, 0x0B);
             }
+            // Door B
             else if (printMap[i][j] == 'B'){
                 console.writeToBuffer(c, (char)239, 0x0B);
             }
+            // Door C
             else if (printMap[i][j] == 'C'){
                 console.writeToBuffer(c, (char)239, 0x0B);
             }
+            // Door D
             else if (printMap[i][j] == 'D'){
                 console.writeToBuffer(c, (char)239, 0x0B);
             }
+            // Door E
             else if (printMap[i][j] == 'E'){
                 console.writeToBuffer(c, (char)239, 0x0B);
             }
+            // Door K
             else if (printMap[i][j] == 'K'){
                 console.writeToBuffer(c, (char)239, 0x0B);
             }
-            // From Y - P tutorial
+            // From Y - P, tutorial
+            // Moving traps
+            else if (printMap[i][j] == 'Z') {
+                console.writeToBuffer(c, '*', 0x0E);
+            }
             // Monster spawner
 			else if (printMap[i][j] == 'Y') {
 				console.writeToBuffer(c, (char)241);
@@ -403,7 +440,7 @@ void renderMap()
 			else if (printMap[i][j] == 'Q') {
 				console.writeToBuffer(c, '|', 0x03);
 			}
-            // Path
+            // Path for tutorial
 			else if (printMap[i][j] == 'P') {
 				console.writeToBuffer(c, ' ' , 0x03);
 			}
@@ -411,18 +448,22 @@ void renderMap()
             else if (printMap[i][j] == 'I') {
                 console.writeToBuffer(c, (char)154, 0x0C);
             }
-
             else{
                 console.writeToBuffer(c, " ");
             }
         }
         std::cout << std::endl;
     }
-	textbox();
-	minimap();
-	HUD();
+	textbox();      // Description for tutorial
+	minimap();      // Minimap for gameplay
+	HUD();          // HUD for gameplay
 	
 }
+
+//-----------------//
+// Player movement //
+//-----------------//
+
 void moveCharacter()
 {
         //PLAYER MOVEMENT
@@ -433,7 +474,7 @@ void moveCharacter()
 
             }    
             else{
-                Beep(1440, 30);
+                
                 charLocation.Y -= 2; 
             }
         }
@@ -444,7 +485,7 @@ void moveCharacter()
 
             }
             else{
-                Beep(202, 30);
+       
                 charLocation.X -= 2;
             }
         }
@@ -454,7 +495,7 @@ void moveCharacter()
             if (printMap[charLocation.Y + 2][charLocation.X] == 1){
             }
             else{
-                Beep(1440, 30);
+             
                 charLocation.Y += 2;
             }
         }
@@ -465,7 +506,7 @@ void moveCharacter()
 
             }
             else{
-                Beep(1440, 30);
+                
                 charLocation.X += 2;
             }
         }
@@ -476,7 +517,7 @@ void moveCharacter()
                 
             }
             else{
-                Beep(1440, 30);
+                
                 charLocation.Y -= 1;
             }
         }
@@ -487,7 +528,7 @@ void moveCharacter()
 
             }
             else{
-                Beep(1440, 30);
+                
                 charLocation.X -= 1;
             }
         }
@@ -498,7 +539,7 @@ void moveCharacter()
 
             }
             else{
-                Beep(1440, 30);
+          
                 charLocation.Y += 1;
             }
         }
@@ -509,19 +550,20 @@ void moveCharacter()
 
             }
             else{
-                Beep(1440, 30);
+            
                 charLocation.X += 1;
             }
         }
-        mapChange();
-        refill();
-		Getdamagedbyboss();
+        mapChange();            // Change from one map to another
+        refill();               // Refill items
 }
+
 void processUserInput()
 {
     // pauses the game when player presses escape
     if (keyPressed[K_ESCAPE]){
         g_eGameState = PAUSE;
+		PlaySound(NULL, NULL, 0);
     }
 }
 
@@ -535,84 +577,30 @@ void renderCharacter()
 {
     // Draw the location of the character
     if (cobwebToken != 1){
-        console.writeToBuffer(charLocation, (char)232, 0x0A);
+        console.writeToBuffer(charLocation, (char)1, 0x0A);
     }
     else{
-        console.writeToBuffer(charLocation, (char)232);
-    }
-    // render super monster
-    if (g_cChaserLoc.X == g_cChaser1Loc.X && g_cChaserLoc.Y == g_cChaser1Loc.Y){
-        if (monsterToken == 1){
-            console.writeToBuffer(g_cChaserLoc, (char)238, 0x0A);
-        }
-    }
-    // normal monster
-    else{
-        if (monsterToken == 1) {
-            if (level != TUTORIALROOM){
-                console.writeToBuffer(g_cChaserLoc, (char)238, 0x0E);
-            }
-        }
-        if (monster1Token == 1){
-            if (level != TUTORIALROOM){
-                console.writeToBuffer(g_cChaser1Loc, (char)238, 0x0E);
-            }
-        }   
-    }
-    if (level == LIBRARYROOM){
-        console.writeToBuffer(guarda, '*', 0x0E);
-    }
-    else if (level == RIVERROOM){
-        console.writeToBuffer(guardb, '*', 0x0E);
-    }
-    else if (level == THEHROOM){
-        console.writeToBuffer(guardc, '*', 0x0E);
-    }
-    if (level == MERRYGRROOM){
-        console.writeToBuffer(guardd, '*', 0x0E);
-    }
-    if (level == LECTUREHALLROOM)
-    {
-        console.writeToBuffer(guarde, '*', 0x0E);
+        console.writeToBuffer(charLocation, (char)1);
     }
 }
-void renderFramerate()
-{
-    //COORD c;
-    //// displays the framerate
-    //std::ostringstream ss;
-    //ss << std::fixed << std::setprecision(3);
-    //ss << 1.0 / deltaTime << "fps";
-    //c.X = console.getConsoleSize().X - 9;
-    //c.Y = 0;
-    //console.writeToBuffer(c, ss.str(), 0x59);
 
-    //// displays the elapsed time
-    //ss.str("");
-    //ss << elapsedTime << "secs";
-    //c.X = 0;
-    //c.Y = 0;
-    //console.writeToBuffer(c, ss.str(), 0x59);
-}
 void renderToScreen()
 {
     // Writes the buffer to the console, hence you will see what you have written
     console.flushBufferToConsole();
 }
 
-//seeding
-void randomSeed(){
-    int seed = 6;
-    srand(seed);
-}
+//-----------------//
+// Gameover, Retry //
+//-----------------//
 
-//Gameover,Retry screen
 void gameend(){
 	clearScreen();
 	std::string gameover;
 	COORD c;
 	c.Y = 6;
 	c.X = 15;
+	
 	std::ifstream myfile;
 	myfile.open("screen/gameover.txt");
 	for (int i = 0; myfile.good(); i++){
@@ -624,21 +612,9 @@ void gameend(){
 	c.X = 28;
 	c.Y = 13;
 	console.writeToBuffer(c, "Press R to retry", 0x0E);
-    //Text for game over
-    c.Y = 15;
-    console.writeToBuffer(c, "Press Q to quit game", 0x0E);
 	if (keyPressed[K_R]) {
-		g_eGameState = GAME;
-        player.bomb = 1;
-        uCooldown = 0;
-        fight = NORMAL;
-        retry();
-		cobwebToken = 0;
-        timesRetry++;
+        levelReset();
 	} // Change gamestate from gameover to game and allows player to retry the stage they are at
-    if (keyPressed[K_Q]) {
-        g_quitGame = true;
-    }
     if (classes == BALANCED) {
         player.health = 4;
         player.ammo = 5;
@@ -651,7 +627,7 @@ void gameend(){
         player.health = 2;
         player.ammo = 8;
     } // Archer class, health 2 , 8 ammo at start, 3 range
-
+	soundreset();
 	//Boss Projectile
     Bprojectile1.X = 0;
     Bprojectile1.Y = 0;
@@ -698,7 +674,11 @@ void mapChange(){
 		Monster = STARTGAME;
 	}
 }
-// initial monster spawn
+
+//---------------------//
+// Initial Ghost spawn //
+//---------------------//
+
 void setmonsterlocation(){
     g_cChaserLoc.X = 26;
     g_cChaserLoc.Y = 2;
@@ -706,40 +686,82 @@ void setmonsterlocation(){
     g_cChaser1Loc.Y = 24;
     charLocation.X = 3;
     charLocation.Y = 13;
+    t_monsterDied = 0;
+    t_monster1Died = 0;
 } // Code the coordinates for each entity
 
-// textbox for tutorial screen
+//--------------------------//
+// Description for tutorial //
+//--------------------------//
+
 void textbox() {
 	COORD c;	
-	//wall
+	// Wall
 	if (printMap[charLocation.Y][charLocation.X] == 'Q'){
-			c.X = 6;
-			c.Y = 7;
-			console.writeToBuffer(c, "This is a Wall");
-			c.X = 6;
-			c.Y = 8;
-			console.writeToBuffer(c, "You can jump over 1 layer thick walls");
-		}
+		c.X = 6;
+		c.Y = 7;
+		console.writeToBuffer(c, "This is a Wall");
+        c.X = 6;
+        c.Y = 8;
+        console.writeToBuffer(c, "Able to jump over single layer wall");
+		c.X = 6;
+		c.Y = 9;
+		console.writeToBuffer(c, "WOOOO time to parkour", 0x0A);
+	}
+
+    // Moving traps
+    if (printMap[charLocation.Y][charLocation.X] == 'Z'){
+        c.X = 6;
+        c.Y = 7;
+        console.writeToBuffer(c, "This is a moving trap");
+        c.X = 6;
+        c.Y = 8;
+        console.writeToBuffer(c, "Deals a damage when you step into it");
+        c.X = 6;
+        c.Y = 9;
+        console.writeToBuffer(c, "Won't get in your way... most of the time", 0x0A);
+    }
 	
-	//Lava
+	// Lava
     if (printMap[charLocation.Y][charLocation.X] == 'R'){
         c.X = 6;
 		c.Y = 7;
 		console.writeToBuffer(c, "This is lava");
         c.X = 6;
-		c.Y = 8;
-		console.writeToBuffer(c, "It does 2 damage instantly");
+        c.Y = 8;
+        console.writeToBuffer(c, "Deals 2 damage when you step into it");
+        c.X = 6;
+        c.Y = 9;
+        console.writeToBuffer(c, "It's almost as hot as me", 0x0A);
 	}
-	//cobwebs
+
+    // Door
+    if (printMap[charLocation.Y][charLocation.X] == 5){
+        c.X = 6;
+        c.Y = 7;
+        console.writeToBuffer(c, "This is a door");
+        c.X = 6;
+        c.Y = 8;
+        console.writeToBuffer(c, "It transports you to another level");
+        c.X = 6;
+        c.Y = 9;
+        console.writeToBuffer(c, "Onward!", 0x0A);
+    }
+
+	// Cobwebs
 	if (printMap[charLocation.Y][charLocation.X] == 'S'){
         c.X = 6;
 		c.Y = 7;
 		console.writeToBuffer(c, "This is Cobwebs");
         c.X = 6;
-		c.Y = 8;
-		console.writeToBuffer(c, "It makes you stop moving for 1 second");
+        c.Y = 8;
+        console.writeToBuffer(c, "You get stuck for a second");
+        c.X = 6;
+        c.Y = 9;
+        console.writeToBuffer(c, "White sticky stuff", 0x0A);
 	}
 
+    // Ghost
 	if (printMap[charLocation.Y][charLocation.X] == 'T'){
         c.X = 6;
         c.Y = 7;
@@ -747,8 +769,12 @@ void textbox() {
         c.X = 6;
         c.Y = 8;
         console.writeToBuffer(c, "It deals 1 damage to you if it touches you");
+        c.X = 6;
+        c.Y = 9;
+        console.writeToBuffer(c, "BOOOOO spookyyyyy", 0x0A);
 	}
 
+    // Super ghost
 	if (printMap[charLocation.Y][charLocation.X] == 'U'){
         c.X = 6;
         c.Y = 7;
@@ -757,10 +783,14 @@ void textbox() {
         c.Y = 8;
         console.writeToBuffer(c, "It appears when 2 ghost combines");
         c.X = 6;
-        c.Y = 8;
+        c.Y = 9;
         console.writeToBuffer(c, "It deals 2 damage to you if it touches you");
+        c.X = 6;
+        c.Y = 10;
+        console.writeToBuffer(c, "Twice as creepy", 0x0A);
 	}
 	
+    // Bomb
 	if (printMap[charLocation.Y][charLocation.X] == 'V'){
 		c.X = 6;
 		c.Y = 7;
@@ -768,6 +798,9 @@ void textbox() {
 		c.X = 6;
 		c.Y = 8;
 		console.writeToBuffer(c, "It kills all the ghosts on the map");
+        c.X = 6;
+        c.Y = 9;
+        console.writeToBuffer(c, "Jet fuels can't melt steel beams", 0x0A);
 	}
 	// Ammo pack
 	if (printMap[charLocation.Y][charLocation.X] == 'W'){
@@ -777,6 +810,9 @@ void textbox() {
 		c.X = 6;
 		c.Y = 8;
 		console.writeToBuffer(c, "Refills ammo by 5");
+        c.X = 6;
+        c.Y = 9;
+        console.writeToBuffer(c, "Where's the guns?", 0x0A);
 	}
 	// Health pack
 	if (printMap[charLocation.Y][charLocation.X] == 'X'){
@@ -786,19 +822,26 @@ void textbox() {
 		c.X = 6;
 		c.Y = 8;
 		console.writeToBuffer(c, "Refills health by 1");
+        c.X = 6;
+        c.Y = 9;
+        console.writeToBuffer(c, "They are literally human hearts...", 0x0A);
 	}
-	//Monster Spawner
+	// Monster Spawner
 	if (printMap[charLocation.Y][charLocation.X] == 'Y'){
 		c.X = 6;
 		c.Y = 7;
-		console.writeToBuffer(c, "This is a monster spawner");
+		console.writeToBuffer(c, "This is a ghost spawner");
 		c.X = 6;
 		c.Y = 8;
         console.writeToBuffer(c, "Monster spawns here when killed");
         c.X = 6;
         c.Y = 9;
         console.writeToBuffer(c, "Able to walk through it");
+        c.X = 6;
+        c.Y = 10;
+        console.writeToBuffer(c, "At least you don't spawn there", 0x0A);
 	}
+    // Path for tutorial
 	if (printMap[charLocation.Y][charLocation.X] == 'P')
 	{
 		c.X = 8;
@@ -825,11 +868,19 @@ void textbox() {
 	} // Basic instructions shown at start of game, hard coded into array
 }
 
+//----------------------------//
+// Invincibility when damaged //
+//----------------------------//
+
 void invincibility(){
     if (elapsedTime > t_invincibility){
         iToken = 0;
     }
 }
+
+//-------------//
+// Retry level //
+//-------------//
 
 void retry(){
     switch (level){
@@ -847,4 +898,109 @@ void retry(){
             break;
     }
     minimap();
+}
+
+//-------------//
+// Sound reset //
+//-------------//
+
+void soundreset(){ 
+	gamesoundToken = 0;
+	bossSoundToken = 0;
+}
+
+//---------------//
+// Level reset //
+//---------------//
+
+void levelReset() { // Resets level when dead
+    g_eGameState = GAME;
+    player.bomb = 1;
+    uCooldown = 0;
+    fight = NORMAL;
+    retry();
+    cobwebToken = 0;
+    timesRetry++;
+    soundreset();
+    gamesoundToken = 0;
+    monsterToken = 1;
+    monster1Token = 1;
+    Bhealth = 50;
+}
+
+//------------//
+// Game reset //
+//------------//
+
+void completeReset(){ // Reset the whole game
+    soundreset();
+    g_eGameState = SPLASH;
+    player.bomb = 1;
+    fight = NORMAL;
+    level = TUTORIALROOM;
+    tutorial();
+    Bhealth = 50;
+    healthDMG = 0;
+    ammoUsed = 0;
+    bombUsed = 0;
+    t_monsterDied = 0;
+    t_monster1Died = 0;
+    uCooldown = 0;
+    elapsedTime = 0;
+    cobwebToken = 0;
+}
+
+//----------------------------//
+// Render ghost & super ghost //
+//----------------------------//
+
+void renderMonster(){
+    // render super monster
+    if (g_cChaserLoc.X == g_cChaser1Loc.X && g_cChaserLoc.Y == g_cChaser1Loc.Y && monsterToken == 1 && monster1Token == 1){
+            console.writeToBuffer(g_cChaserLoc, (char)238, 0x0D);
+    }
+    // normal monster
+    else{
+        if (monsterToken == 1) {
+            if (level != TUTORIALROOM){
+                console.writeToBuffer(g_cChaserLoc, (char)238, 0x0E);
+            }
+        }
+        if (monster1Token == 1){
+            if (level != TUTORIALROOM){
+                console.writeToBuffer(g_cChaser1Loc, (char)238, 0x0E);
+            }
+        }
+    }
+}
+
+//---------------------//
+// Render moving traps //
+//---------------------//
+
+void renderGuards(){
+    if (level == LIBRARYROOM){
+        console.writeToBuffer(guarda, '*', 0x0E);
+    }
+    else if (level == RIVERROOM){
+        console.writeToBuffer(guardb, '*', 0x0E);
+    }
+    else if (level == THEHROOM){
+        console.writeToBuffer(guardc, '*', 0x0E);
+    }
+    if (level == MERRYGRROOM){
+        console.writeToBuffer(guardd, '*', 0x0E);
+    }
+    if (level == LECTUREHALLROOM)
+    {
+        console.writeToBuffer(guarde, '*', 0x0E);
+    }
+}
+void monstersMoveChecker(){
+    if (monsterToken == 1) {
+        moveMonster();      // moves ghost1
+    }
+    if (monster1Token == 1){
+        moveMonster1();     // moves ghost2
+    }
 }

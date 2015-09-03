@@ -28,7 +28,7 @@ if true, trap does something to player
 */
 
 
-void trapLava(){
+void traps(){
     //LAVA
     if (printMap[charLocation.Y][charLocation.X] == 2){
         if (iToken == 0){

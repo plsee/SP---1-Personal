@@ -29,6 +29,69 @@ Done by Kwan Liang , 21 Aug 2015
 Checks if theres ammo, direction of projectile, walls, enemies and class
 Checks classes and range of projectile
 */
+double t_wProjectile = elapsedTime;
+
+//--------------------------------//
+// Damage to boss with projectile //
+//--------------------------------//
+
+void damageBoss() {
+    if (fight == BATTLE){
+        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
+            if (elapsedTime < t_dDamage) {
+                Bhealth -= 2;
+            }
+            else {
+                Bhealth -= 1;
+            }
+        }
+    }
+}
+
+//-----------------------------//
+// Projectile damage direction //
+//-----------------------------//
+
+void damageUp() {
+    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
+        console.writeToBuffer(g_cProjectile, (char)30, 0x0B);
+        projKill();
+        projKill1();
+        g_cProjectile.Y -= 1;
+    }
+}
+
+void damageLeft() {
+    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
+        console.writeToBuffer(g_cProjectile, (char)17, 0x0B);
+        projKill();
+        projKill1();
+        g_cProjectile.X -= 1;
+    }
+}
+
+void damageDown() {
+    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
+        console.writeToBuffer(g_cProjectile, (char)31, 0x0B);
+        projKill();
+        projKill1();
+        g_cProjectile.Y += 1;
+    }
+}
+
+void damageRight() {
+    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
+        console.writeToBuffer(g_cProjectile, (char)16, 0x0B);
+        projKill();
+        projKill1();
+        g_cProjectile.X += 1;
+    }
+}
+
+//---------------------------------//
+// Projectile for specific Classes //
+//---------------------------------//
+
 void projectile() {
     if (player.ammo > 0){
         if (keyPressed[K_W]) {					//Shoot upwards when player presses W
@@ -38,78 +101,32 @@ void projectile() {
             g_cProjectile.Y = charLocation.Y - 1;
             if (classes == WARRIOR) {
                 player.ammo = 1;				// Does not reduce ammo for warrior as he as infinite ammo
-                for (int i = 0; i < 1; ++i) {
-                    if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            if (elapsedTime < t_dDamage) {
-                                Bhealth -= 2;
-                            }
-                            else {
-                                Bhealth -= 1;
-                            }
-                        }
-                    }
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                        console.writeToBuffer(g_cProjectile, (char)30, 0x0B);
-                        projKill();
-                        projKill1();
-                        g_cProjectile.Y -= 1;
-                    }
-                    else{
-                        break;
+                if (elapsedTime > t_wProjectile) {
+                    t_wProjectile = elapsedTime + 0.5;
+                    for (int i = 0; i < 1; ++i) {
+                        damageBoss();
+                        damageUp();
                     }
                 }
             }
             else if (classes == ARCHER) {
                 if (elapsedTime < t_maxRange) {
                     for (int i = 0; i < 22; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                            console.writeToBuffer(g_cProjectile, (char)30, 0x0B);
-                            projKill();
-                            projKill1();
-                            g_cProjectile.Y -= 1;
-                        }
-                        else{
-                            break;
-                        }
+                        damageBoss();
+                        damageUp();
                     }
                 }
                 else {
                     for (int i = 0; i < 4; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                            console.writeToBuffer(g_cProjectile, (char)30, 0x0B);
-                            projKill();
-                            projKill1();
-                            g_cProjectile.Y -= 1;
-                        }
-                        else{
-                            break;
-                        }
+                        damageBoss();
+                        damageUp();
                     }
                 }
             }
             else {
                 for (int i = 0; i < 2; ++i) {
-                    if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                    }
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                        console.writeToBuffer(g_cProjectile, (char)30, 0x0B);
-                        projKill();
-                        projKill1();
-                        g_cProjectile.Y -= 1;
-                    }
-                    else{
-                        break;
-                    }
+                    damageBoss();
+                    damageUp();
                 }
             }
         }
@@ -119,79 +136,33 @@ void projectile() {
             g_cProjectile.X = charLocation.X - 1;
             g_cProjectile.Y = charLocation.Y;
             if (classes == WARRIOR) {
-                if (fight == BATTLE){
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                        if (elapsedTime < t_dDamage) {
-                            Bhealth -= 2;
-                        }
-                        else {
-                            Bhealth -= 1;
-                        }
-                    }
-                }
                 player.ammo += 1;
-                for (int i = 0; i < 1; ++i) {
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                        console.writeToBuffer(g_cProjectile, (char)17, 0x0B);
-                        projKill();
-                        projKill1();
-                        g_cProjectile.X -= 1;
-                    }
-                    else{
-                        break;
+                if (elapsedTime > t_wProjectile) {
+                    t_wProjectile = elapsedTime + 0.5;
+                    for (int i = 0; i < 1; ++i) {
+                        damageBoss();
+                        damageLeft();
                     }
                 }
             }
             else if (classes == ARCHER) {
                 if (elapsedTime < t_maxRange) {
                     for (int i = 0; i < 75; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                            console.writeToBuffer(g_cProjectile, (char)17, 0x0B);
-                            projKill();
-                            projKill1();
-                            g_cProjectile.X -= 1;
-                        }
-                        else{
-                            break;
-                        }
+                        damageBoss();
+                        damageLeft();
                     }
                 }
                 else {
                     for (int i = 0; i < 4; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                            console.writeToBuffer(g_cProjectile, (char)17, 0x0B);
-                            projKill();
-                            projKill1();
-                            g_cProjectile.X -= 1;
-                        }
-                        else{
-                            break;
-                        }
+                        damageBoss();
+                        damageLeft();
                     }
                 }
             }
             else {
                 for (int i = 0; i < 2; ++i) {
-                    if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                    }
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                        console.writeToBuffer(g_cProjectile, (char)17, 0x0B);
-                        projKill();
-                        projKill1();
-                        g_cProjectile.X -= 1;
-                    }
-                    else{
-                        break;
-                    }
+                    damageBoss();
+                    damageLeft();
                 }
             }
         }
@@ -202,78 +173,32 @@ void projectile() {
             g_cProjectile.Y = charLocation.Y + 1;
             if (classes == WARRIOR) {
                 player.ammo += 1;
-                for (int i = 0; i < 1; ++i) {
-                    if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            if (elapsedTime < t_dDamage) {
-                                Bhealth -= 2;
-                            }
-                            else {
-                                Bhealth -= 1;
-                            }
-                        }
-                    }
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                        console.writeToBuffer(g_cProjectile, (char)31, 0x0B);
-                        projKill();
-                        projKill1();
-                        g_cProjectile.Y += 1;
-                    }
-                    else{
-                        break;
+                if (elapsedTime > t_wProjectile) {
+                    t_wProjectile = elapsedTime + 0.5;
+                    for (int i = 0; i < 1; ++i) {
+                        damageBoss();
+                        damageDown();
                     }
                 }
             }
             else if (classes == ARCHER) {
                 if (elapsedTime < t_maxRange) {
                     for (int i = 0; i < 22; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                            console.writeToBuffer(g_cProjectile, (char)31, 0x0B);
-                            projKill();
-                            projKill1();
-                            g_cProjectile.Y += 1;
-                        }
-                        else{
-                            break;
-                        }
+                        damageBoss();
+                        damageDown();
                     }
                 }
                 else {
                     for (int i = 0; i < 4; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                            console.writeToBuffer(g_cProjectile, (char)31, 0x0B);
-                            projKill();
-                            projKill1();
-                            g_cProjectile.Y += 1;
-                        }
-                        else{
-                            break;
-                        }
+                        damageBoss();
+                        damageDown();
                     }
                 }
             }
             else {
                 for (int i = 0; i < 2; ++i) {
-                    if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                    }
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                        console.writeToBuffer(g_cProjectile, (char)31, 0x0B);
-                        projKill();
-                        projKill1();
-                        g_cProjectile.Y += 1;
-                    }
-                    else{
-                        break;
-                    }
+                    damageBoss();
+                    damageDown();
                 }
             }
         }
@@ -284,78 +209,32 @@ void projectile() {
             g_cProjectile.Y = charLocation.Y;
             if (classes == WARRIOR) {
                 player.ammo += 1;
-                for (int i = 0; i < 1; ++i) {
-                    if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            if (elapsedTime < t_dDamage) {
-                                Bhealth -= 2;
-                            }
-                            else {
-                                Bhealth -= 1;
-                            }
-                        }
-                    }
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                        console.writeToBuffer(g_cProjectile, (char)16, 0x0B);
-                        projKill();
-                        projKill1();
-                        g_cProjectile.X += 1;
-                    }
-                    else{
-                        break;
+                if (elapsedTime > t_wProjectile) {
+                    t_wProjectile = elapsedTime + 0.5;
+                    for (int i = 0; i < 1; ++i) {
+                        damageBoss();
+                        damageRight();
                     }
                 }
             }
             else if (classes == ARCHER) {
                 if (elapsedTime < t_maxRange) {
                     for (int i = 0; i < 71; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                            console.writeToBuffer(g_cProjectile, (char)16, 0x0B);
-                            projKill();
-                            projKill1();
-                            g_cProjectile.X += 1;
-                        }
-                        else{
-                            break;
-                        }
+                        damageBoss();
+                        damageRight();
                     }
                 }
                 else {
                     for (int i = 0; i < 4; ++i) {
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                            console.writeToBuffer(g_cProjectile, (char)16, 0x0B);
-                            projKill();
-                            projKill1();
-                            g_cProjectile.X += 1;
-                        }
-                        else{
-                            break;
-                        }
+                        damageBoss();
+                        damageRight();
                     }
                 }
             }
             else {
                 for (int i = 0; i < 2; ++i) {
-                    if (fight == BATTLE){
-                        if (printMap[g_cProjectile.Y][g_cProjectile.X] == 'I'){
-                            Bhealth -= 1;
-                        }
-                    }
-                    if (printMap[g_cProjectile.Y][g_cProjectile.X] != 1){
-                        console.writeToBuffer(g_cProjectile, (char)16, 0x0B);
-                        projKill();
-                        projKill1();
-                        g_cProjectile.X += 1;
-                    }
-                    else{
-                        break;
-                    }
+                    damageBoss();
+                    damageRight();
                 }
             }
         }

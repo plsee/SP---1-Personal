@@ -1,9 +1,11 @@
+#include <sstream>
+#include <iomanip>
 #include "game.h"
 #include "Framework\console.h"
 
-extern int Bhealth;
+extern int Bhealth;//Boss health
 extern double elapsedTime;
-extern double uCooldown;
+extern double uCooldown;//Cooldown for Ultimate
 extern Console console;
 extern MAPSTATE level;
 extern CLASSES classes;
@@ -16,14 +18,28 @@ struct Stats {
 
 extern Stats player;
 
-//-----//
-// HUD //
-//-----//
+/* HUD
+The display for the player's health/ammo/bomb/boss hp
+Done by Cher Yi , 25 Aug 2015
+Checks using loops to add/minus respective stats
+*/
+
+//-----------------------------//
+// Display player & boss stats //
+//-----------------------------//
 
 void HUD() {
     COORD c;
     #define HUD_WIDTH 22
     #define HUD_HEIGHT 17
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(1);
+    ss.str("");
+    ss << elapsedTime << "s";
+    c.X = 24;
+    c.Y = 0;
+    console.writeToBuffer(c, ss.str());
+
     //defining HUD position
     c.X = console.getConsoleSize().X - 21;
     c.Y = console.getConsoleSize().Y - 16;
@@ -90,21 +106,21 @@ void HUD() {
         c.Y = console.getConsoleSize().Y - 4;
         console.writeToBuffer(c, "BOSS HP"); //only shows when the gamestate is BOSSROOM
         if (Bhealth >= 30){
-            for (int m = 0; m < Bhealth / 5; m++){      //Health bar when hp is >= 30
+            for (int m = 0; m <= (Bhealth - 30) / 2; m++){      //Health bar when hp is >= 30
                 c.X = console.getConsoleSize().X - 21 + m;
                 c.Y = console.getConsoleSize().Y - 3;
                 console.writeToBuffer(c, (char)220);
             }
         }
         else if (Bhealth >= 10){					   //Health bar when hp is >= 10, Changes to yellow
-            for (int m = 0; m < Bhealth / 5; m++){
+            for (int m = 0; m <= (Bhealth - 10) / 2; m++){
                 c.X = console.getConsoleSize().X - 21 + m;
                 c.Y = console.getConsoleSize().Y - 3;
                 console.writeToBuffer(c, (char)220, 0x0E);
             }
         }
         else if (Bhealth < 10){						   //Health bar when hp is < 10, Changes to red
-            for (int m = 0; m < Bhealth / 5; m++){
+            for (int m = 0; m < Bhealth; m++){
                 c.X = console.getConsoleSize().X - 21 + m;
                 c.Y = console.getConsoleSize().Y - 3;
                 console.writeToBuffer(c, (char)220, 0x0C);

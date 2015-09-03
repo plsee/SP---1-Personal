@@ -1,6 +1,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include "game.h"
 #include "Framework\console.h"
 
@@ -8,12 +9,17 @@ int healthDMG = 0;
 int ammoUsed = 0;
 int bombUsed = 0;
 int timesRetry = 0;
+int ghostKilled = 0;
 
 int *pStats = 0;
 
 extern int Bhealth;
+extern int gamesoundToken;
 extern bool keyPressed[K_COUNT];
 extern double elapsedTime;
+extern double t_monsterDied;
+extern double t_monster1Died;
+double finalTime;
 extern Console console;
 extern GAMESTATES g_eGameState;
 extern CLASSES classes;
@@ -36,14 +42,17 @@ struct Stats {
 
 extern Stats player;
 
-//--------------------------------------------//
-// Waiting time before Splash Screen switches //
-//--------------------------------------------//
+/* Splash screen
+Done by Cher Yi , 20 Aug 2015
+Checks if 3 seconds have passed after splash screen shows, if true, show title screen
+if false, show splash screen till 3 seconds have passed
+*/
 
 void splashwait(){
-    if (elapsedTime > 3.0){
-        g_eGameState = TITLE;
-    }
+	if (elapsedTime > 3.0){
+		g_eGameState = TITLE;
+		PlaySound(L"sounds/menutheme.wav", NULL, SND_ASYNC | SND_LOOP);
+	}
 }
 
 //---------------//
@@ -72,8 +81,8 @@ void titlescreen(){
     clearScreen();
     std::string title;
     COORD c;
-    c.Y = 3;
     c.X = 10;
+    c.Y = 3;
     std::ifstream myfile;
     myfile.open("screen/title.txt");
     for (int i = 0; myfile.good(); i++){
@@ -81,7 +90,19 @@ void titlescreen(){
         console.writeToBuffer(c, title, 0x0E);
         c.Y += 1;
     } // prints out the characters line by line
-
+    
+    int randGhost = rand() % 100;
+    switch (randGhost) {
+    case 1: ghost1();
+        break;
+    case 2: ghost2();
+        break;
+    case 3: ghost3();
+        break;
+    case 4: ghost4();
+        break;
+    }
+    
     // start button
     c.Y = 18;
     c.X = 34;
@@ -91,6 +112,62 @@ void titlescreen(){
     c.X = 34;
     console.writeToBuffer(c, "Exit");
     Tpointer();
+}
+
+void ghost1() {
+    std::string ghost1;
+    COORD c;
+    c.X = rand() % 68;
+    c.Y = rand() % 18;
+    std::ifstream ghostAppear1;
+    ghostAppear1.open("screen/ghost1.txt");
+    for (int i = 0; ghostAppear1.good(); i++){
+        std::getline(ghostAppear1, ghost1);
+        console.writeToBuffer(c, ghost1, 0x0E);
+        c.Y += 1;
+    } // prints out the characters line by line
+}
+
+void ghost2() {
+    std::string ghost2;
+    COORD c;
+    c.X = rand() % 68;
+    c.Y = rand() % 18;
+    std::ifstream ghostAppear2;
+    ghostAppear2.open("screen/ghost2.txt");
+    for (int i = 0; ghostAppear2.good(); i++){
+        std::getline(ghostAppear2, ghost2);
+        console.writeToBuffer(c, ghost2, 0x0E);
+        c.Y += 1;
+    } // prints out the characters line by line
+}
+
+void ghost3() {
+    std::string ghost3;
+    COORD c;
+    c.X = rand() % 68;
+    c.Y = rand() % 18;
+    std::ifstream ghostAppear3;
+    ghostAppear3.open("screen/ghost3.txt");
+    for (int i = 0; ghostAppear3.good(); i++){
+        std::getline(ghostAppear3, ghost3);
+        console.writeToBuffer(c, ghost3, 0x0E);
+        c.Y += 1;
+    } // prints out the characters line by line
+}
+
+void ghost4() {
+    std::string ghost4;
+    COORD c;
+    c.X = rand() % 68;
+    c.Y = rand() % 18;
+    std::ifstream ghostAppear4;
+    ghostAppear4.open("screen/ghost4.txt");
+    for (int i = 0; ghostAppear4.good(); i++){
+        std::getline(ghostAppear4, ghost4);
+        console.writeToBuffer(c, ghost4, 0x0E);
+        c.Y += 1;
+    } // prints out the characters line by line
 }
 
 //----------------------//
@@ -184,17 +261,18 @@ void Ppointer(){
     if (keyPressed[K_RETURN]){
         if (PpointerLoc.Y == 15){
             g_eGameState = GAME;
+			soundreset();
         } // move to the game screen
         else if (PpointerLoc.Y == 17){
-            tutorial();
+            completeReset();
             g_eGameState = GAMEOVER;
         } // move to game over screen
         else if (PpointerLoc.Y == 19){
-            tutorial();
-            g_eGameState = SPLASH;
+            completeReset();
             elapsedTime = 2;
-            fight = NORMAL;
-        } // move to splash screen
+        }
+        // move to splash screen
+		PlaySound(NULL, NULL, 0);
     }
 }
 
@@ -247,19 +325,23 @@ void pointerCS(){
             if (pointerCLoc.X == 7){
                 classes = BALANCED;
                 g_eGameState = GAME;
+                elapsedTime = 0;
             }
             else if (pointerCLoc.X == 27){
                 classes = WARRIOR;
                 g_eGameState = GAME;
+                elapsedTime = 0;
             }
             else if (pointerCLoc.X == 47){
                 classes = ARCHER;
                 g_eGameState = GAME;
+                elapsedTime = 0;
             }
         }
         else if (pointerCSLoc.Y == 25){
             g_eGameState = SPLASH;
             elapsedTime = 2;
+            pointerCSLoc.Y = 24;
         }
     }
 
@@ -356,7 +438,7 @@ void CSdesc() {
         console.writeToBuffer(CSdescLoc, "Ultimate: Warrior's Rage");
         CSdescLoc.X = 32;
         CSdescLoc.Y = 25;
-        console.writeToBuffer(CSdescLoc, "Triple damage for 1 second");
+        console.writeToBuffer(CSdescLoc, "Double damage for 2 seconds");
     }
     else if (pointerCLoc.X == 47){
         CSdescLoc.X = 6;
@@ -397,6 +479,13 @@ void victory() {
         console.writeToBuffer(c, victory, 0x0E);
         c.Y += 1;
     }
+
+    int randFirework = rand() % 5;
+    switch (randFirework) {
+        case 0: firework();
+        break;
+    }
+    finalTime = elapsedTime;
     c.X = 14;
     c.Y = 13;
     console.writeToBuffer(c, "Press R to see game run statistics and credits", 0x0E);
@@ -415,7 +504,26 @@ void victory() {
         player.health = 2;
         player.ammo = 8;
     } // Archer class, health 2 , 8 ammo at start, 3 range
+   
 }
+
+void firework() {
+    std::string boom;
+    COORD c;
+    c.X = rand() % 50;
+    c.Y = rand() % 10 + 10;
+    std::ifstream fireworkExp;
+    fireworkExp.open("screen/firework.txt");
+    for (int i = 0; fireworkExp.good(); i++){
+        std::getline(fireworkExp, boom);
+        console.writeToBuffer(c, boom, 0x0E);
+        c.Y += 1;
+    } // prints out the characters line by line
+}
+
+//----------------//
+// Credits Screen //
+//----------------//
 
 void credits() {
     clearScreen();
@@ -424,10 +532,21 @@ void credits() {
     std::ostringstream sAmmo;
     std::ostringstream sBombs;
     std::ostringstream stimesRetry;
+    std::ostringstream stimeTaken;
+    std::ostringstream sghostKilled;
+    stimeTaken << std::fixed << std::setprecision(1);
+
+    c.X = 20;
+    c.Y = 4;
+    console.writeToBuffer(c, "STATISTICS", 0x0E);
+
 
     c.X = 20;
     c.Y = 5;
-    console.writeToBuffer(c, "STATISTICS", 0x0E);
+   
+    stimeTaken << "Time Taken : " << finalTime << "s";
+
+    console.writeToBuffer(c, stimeTaken.str());
 
     c.X = 20;
     c.Y = 6;
@@ -454,39 +573,37 @@ void credits() {
     console.writeToBuffer(c, sBombs.str());
 
     c.X = 20;
-    c.Y = 12;
-    console.writeToBuffer(c, "CREDITS", 0x0E);
+    c.Y = 10;
+    pStats = &ghostKilled;
+    sghostKilled << "Ghost Killed : " << *pStats;
+    console.writeToBuffer(c, sghostKilled.str());
 
     c.X = 20;
     c.Y = 13;
-    console.writeToBuffer(c, "Lee Kwan Liang");
+    console.writeToBuffer(c, "CREDITS", 0x0E);
 
     c.X = 20;
     c.Y = 14;
-    console.writeToBuffer(c, "Ashley Wong Keng Han");
+    console.writeToBuffer(c, "Lee Kwan Liang");
 
     c.X = 20;
     c.Y = 15;
-    console.writeToBuffer(c, "Quek Cher Yi");
+    console.writeToBuffer(c, "Ashley Wong Keng Han");
 
     c.X = 20;
     c.Y = 16;
+    console.writeToBuffer(c, "Quek Cher Yi");
+
+    c.X = 20;
+    c.Y = 17;
     console.writeToBuffer(c, "Seann Mauri");
 
     c.X = 20;
-    c.Y = 20;
+    c.Y = 21;
     console.writeToBuffer(c, "Press R to return to title screen", 0x0E);
 
     if (keyPressed[K_R]) {
-        g_eGameState = GAME;
-        player.bomb = 1;
-        fight = NORMAL;
-        g_eGameState = SPLASH;
-        level = TUTORIALROOM;
-        tutorial();
-        Bhealth = 50;
-        healthDMG = 0;
-        ammoUsed = 0;
-        bombUsed = 0;
+        completeReset();
     } // Change gamestate from gameover to game and allows player to retry the stage they are at
 }
+

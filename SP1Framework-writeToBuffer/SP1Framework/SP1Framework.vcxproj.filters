@@ -1,46 +1,87 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="ability.cpp" />
-    <ClCompile Include="BossFight.cpp" />
-    <ClCompile Include="Framework\console.cpp" />
-    <ClCompile Include="Framework\timer.cpp" />
-    <ClCompile Include="game.cpp" />
-    <ClCompile Include="HUD.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="mapfunctions.cpp" />
-    <ClCompile Include="Mapdefination.cpp" />
-    <ClCompile Include="minimap.cpp" />
-    <ClCompile Include="MonsterFight.cpp" />
-    <ClCompile Include="projectile.cpp" />
-    <ClCompile Include="Refills.cpp" />
-    <ClCompile Include="Screens.cpp" />
-    <ClCompile Include="traps.cpp" />
-    <ClCompile Include="MovingTraps.cpp" />
+    <ClCompile Include="Framework\console.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\timer.cpp">
+      <Filter>Source Files\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="MonsterFight.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ability.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="BossFight.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="HUD.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Mapdefinition.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="mapfunctions.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="minimap.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="MovingTraps.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="projectile.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Refills.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Screens.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="traps.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework\console.h">
-      <Filter>HeaderFIles\FrameWork</Filter>
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
     <ClInclude Include="Framework\timer.h">
-      <Filter>HeaderFIles\FrameWork</Filter>
-    </ClInclude>
-    <ClInclude Include="Map.h">
-      <Filter>HeaderFIles</Filter>
+      <Filter>Header Files\Framework</Filter>
     </ClInclude>
     <ClInclude Include="game.h">
-      <Filter>HeaderFIles</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="HeaderFIles">
-      <UniqueIdentifier>{f6dcf45c-887c-495b-b961-7fe0cbe00bea}</UniqueIdentifier>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{a5bb3e8f-7318-4b4a-ab9d-cb490565588d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="HeaderFIles\FrameWork">
-      <UniqueIdentifier>{1301baa5-6bab-43c6-ad7d-2a9fbfbe3bc1}</UniqueIdentifier>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{1aae3bfd-acb4-4925-9ab2-6e4ca424233e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Framework">
+      <UniqueIdentifier>{f332498f-cbda-40e6-a513-a8688d2cb36b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Framework">
+      <UniqueIdentifier>{971d7931-9086-409d-a6c9-a10dc8142ceb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{0e0e174c-30f7-4175-80ef-5a130ca23e74}</UniqueIdentifier>
+      <UniqueIdentifier>{4f9123d7-d6be-468f-a219-5c184ad35053}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{b4883ed8-60d4-41d3-9ba8-71da2f344bc0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

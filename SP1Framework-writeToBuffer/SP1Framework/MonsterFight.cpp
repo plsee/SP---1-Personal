@@ -1,5 +1,5 @@
 #include "game.h"
-
+#include <math.h>
 int monsterToken = 1;
 int monster1Token = 1;
 int spawnToken = 0;
@@ -8,6 +8,7 @@ extern int monsterdelay; // Delay for monster spawn
 extern int monster1delay; // Delay for monster spawn
 extern int iToken;
 extern int healthDMG;
+extern int ghostKilled;
 double t_monsterDied;
 double t_monster1Died;
 extern double elapsedTime;
@@ -35,6 +36,10 @@ if Player x/y coordinates and monster x/y coordinates is the same, chaser damage
 Updated by 24 Aug 2015 - Added delay for monster movement
 */
 
+//-----------------//
+// Ghost1 movement //
+//-----------------//
+
 void moveMonster(){
     // CHASER MOVEMENT
     if (Monster == STARTGAME){
@@ -42,24 +47,24 @@ void moveMonster(){
         if (monsterdelay == 5){
             if (charLocation.Y < g_cChaserLoc.Y){
                 g_cChaserLoc.Y -= 1;
-                Beep(1440, 30);
             } // up
             if (charLocation.X < g_cChaserLoc.X){
                 g_cChaserLoc.X -= 1;
-                Beep(1440, 30);
             } // left
             if (charLocation.X > g_cChaserLoc.X){
                 g_cChaserLoc.X += 1;
-                Beep(1440, 30);
             } // right
             if (charLocation.Y > g_cChaserLoc.Y){
                 g_cChaserLoc.Y += 1;
-                Beep(1440, 30);
             } // down
             monsterdelay = 0; // resets delay after making a move
         }
     }
 }
+
+//-----------------//
+// Ghost2 movement //
+//-----------------//
 
 void moveMonster1(){
     // CHASER MOVEMENT
@@ -68,29 +73,30 @@ void moveMonster1(){
         if (monster1delay == 5){
             if (charLocation.Y < g_cChaser1Loc.Y){
                 g_cChaser1Loc.Y -= 1;
-                Beep(1440, 30);
             } // up
             if (charLocation.X < g_cChaser1Loc.X){
                 g_cChaser1Loc.X -= 1;
-                Beep(1440, 30);
             } // left
             if (charLocation.X > g_cChaser1Loc.X){
                 g_cChaser1Loc.X += 1;
-                Beep(1440, 30);
             } // right
             if (charLocation.Y > g_cChaser1Loc.Y){
                 g_cChaser1Loc.Y += 1;
-                Beep(1440, 30);
             } // down
             monster1delay = 0; // resets delay after making a move
         }
     }
 }
+
 /* check hitbox for monster
 Check if player projectile hits the monster
 checks by x/y location, if returns true, monster dies
 Done by Cher Yi, 18 Aug 2015
 */
+
+//-------------------------------//
+// Player projectile kill ghost1 //
+//-------------------------------//
 
 void projKill(){
     if (g_cChaserLoc.X == g_cProjectile.X && g_cChaserLoc.Y == g_cProjectile.Y){
@@ -98,7 +104,9 @@ void projKill(){
     }
 }
 
-
+//-------------------------------//
+// Player projectile kill ghost2 //
+//-------------------------------//
 
 void projKill1(){
     if (g_cChaser1Loc.X == g_cProjectile.X && g_cChaser1Loc.Y == g_cProjectile.Y){
@@ -112,9 +120,14 @@ Checks if monster dies and randomises their spawn points
 Done by Ashley, 20 Aug 2015
 Updated on 27 Aug 2015, added monster delay when spawning
 */
+
+//-----------------//
+// 1st ghost death //
+//-----------------//
+
 void monsterDeath(){
     monsterToken = 0;
-    t_monsterDied = elapsedTime + 15;
+    t_monsterDied = floor(elapsedTime + 15);
     spawnToken = 1;
     int spawnLocation = rand() % 3; // Spawns the monster randomly between 3 different spawn locations
     g_cChaserLoc.X = 26;
@@ -127,10 +140,16 @@ void monsterDeath(){
     else{
         g_cChaserLoc.Y = 24; // location 3
     }
+    ghostKilled++;
 }
+
+//-----------------//
+// 2nd ghost death //
+//-----------------//
+
 void monster1Death(){
     monster1Token = 0;
-    t_monster1Died = elapsedTime + 15;
+    t_monster1Died = floor(elapsedTime + 15);
     spawn1Token = 1;
     int spawnLocation = rand() % 3; // Spawns the monster randomly between 3 different spawn locations
     g_cChaser1Loc.X = 26;
@@ -143,6 +162,7 @@ void monster1Death(){
     else{
         g_cChaser1Loc.Y = 2; // location 3
     }
+    ghostKilled++;
 }
 
 /* Check hitbox for monster
@@ -150,6 +170,11 @@ Done by Cher Yi , 21 Aug 2015
 Checks if player and monster is on the same location
 if true, player damaged and becomes invulnerable for 0.5 seconds
 */
+
+//------------------------------------------------//
+// 1st ghost collision check & damage calculation //
+//------------------------------------------------//
+
 void collision(){
     if (charLocation.X == g_cChaserLoc.X && charLocation.Y == g_cChaserLoc.Y){
         monsterDeath(); // Monster dies after damaging player
@@ -185,6 +210,11 @@ Checks if super monster is on the same location as player
 if true, player takes 2 damage and becomes invulnerable for 0.5 seconds
 Updated on 26 Aug 2015 - Added invulnerablity for 0.5 seconds
 */
+
+//--------------------------------------//
+// Check for ghost & super ghost damage //
+//--------------------------------------//
+
 void monsterDamage(){
     if (charLocation.X == g_cChaser1Loc.X && charLocation.Y == g_cChaser1Loc.Y && charLocation.X == g_cChaserLoc.X && charLocation.Y == g_cChaserLoc.Y){
         if (monsterToken == 1){
@@ -197,6 +227,7 @@ void monsterDamage(){
         monsterDeath();
         monster1Death();
         healthDMG += 2;
+        ghostKilled += 2;
     }
     else{
         if (monsterToken == 1){
@@ -214,15 +245,17 @@ Done by Ashley, 21 Aug 2015
 respawns the ghost if thge ghost has died
 
 */
+
 //-----------------//
 // Spawn 1st ghost //
 //-----------------//
 
 void spawnMonster(){
-    if (elapsedTime > t_monsterDied){
+    if (elapsedTime >= t_monsterDied){
         if (spawnToken == 1){
             monsterToken = 1;
             spawnToken = 0;
+            monsterdelay = monster1delay;
         }
     }
 }
@@ -232,10 +265,16 @@ void spawnMonster(){
 //-----------------//
 
 void spawnMonster1(){
-    if (elapsedTime > t_monster1Died) {
+    if (elapsedTime >= t_monster1Died) {
         if (spawn1Token == 1){
             monster1Token = 1;
             spawn1Token = 0;
+            monster1delay = monsterdelay;
         }
     }
+}
+void monsterSpawn(){
+    spawnMonster();
+    spawnMonster1();
+
 }
